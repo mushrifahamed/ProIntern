@@ -2,11 +2,13 @@ import React, { useState } from "react";
 import { StyleSheet, Text, View, TouchableOpacity, TextInput } from "react-native";
 import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 import { app } from "../firebase.js";
+import { useNavigation } from '@react-navigation/native';  // Import the useNavigation hook
 
 export default function Register_Recruit() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
+    const navigation = useNavigation();  // Initialize navigation
 
     const auth = getAuth(app);
 
@@ -19,6 +21,7 @@ export default function Register_Recruit() {
             .then((res) => {
                 console.log(res);
                 setError("");
+                navigation.navigate('LoginRecruit');  // Navigate to the Login screen on success
             })
             .catch((err) => {
                 setError(err.message);
@@ -50,6 +53,11 @@ export default function Register_Recruit() {
 
             <TouchableOpacity style={styles.button_container} onPress={signUp}>
                 <Text style={styles.button_text}>Sign Up</Text>
+            </TouchableOpacity>
+
+            {/* Already a user? Navigate to Login */}
+            <TouchableOpacity onPress={() => navigation.navigate('LoginRecruit')}>
+                <Text style={styles.linkText}>Already a user? Log in here</Text>
             </TouchableOpacity>
         </View>
     );
@@ -90,5 +98,12 @@ const styles = StyleSheet.create({
         padding: 15,
         backgroundColor: "#1976d2",
         justifyContent: "center",
+    },
+    linkText: {
+        textAlign: "center",
+        fontSize: 16,
+        color: "#1976d2",
+        marginTop: 15,
+        textDecorationLine: 'underline',
     },
 });

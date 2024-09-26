@@ -2,13 +2,14 @@ import React, { useState } from "react";
 import { StyleSheet, Text, View, TouchableOpacity, TextInput } from "react-native";
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 import { app } from "../firebase.js";
+import { useNavigation } from "@react-navigation/native"; // Import navigation hook
 
 export default function Login_Recruit() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
-
     const auth = getAuth(app);
+    const navigation = useNavigation(); // Initialize navigation
 
     function login() {
         if (email === "" || password === "") {
@@ -19,6 +20,7 @@ export default function Login_Recruit() {
             .then((res) => {
                 console.log(res);
                 setError(""); // Clear error on successful login
+                navigation.navigate("HomeRecruit"); // Navigate to HomeRecruit screen
             })
             .catch((err) => {
                 setError(err.message); // Display error from Firebase
