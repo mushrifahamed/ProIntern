@@ -1,36 +1,34 @@
 import React, { useState } from "react";
 import { StyleSheet, Text, View, TouchableOpacity, TextInput } from "react-native";
-import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
-import { app } from "../firebase.js";
-import { useNavigation } from '@react-navigation/native';  // Import the useNavigation hook
+import { auth } from "../../firebase.js"; // Import the initialized auth from firebase.js
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { useNavigation } from "@react-navigation/native";
 
-export default function Register_Recruit() {
+export default function Login_Recruit() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
-    const navigation = useNavigation();  // Initialize navigation
+    const navigation = useNavigation();
 
-    const auth = getAuth(app);
-
-    function signUp() {
+    function login() {
         if (email === "" || password === "") {
             setError("Email and password are required.");
             return;
         }
-        createUserWithEmailAndPassword(auth, email, password)
+        signInWithEmailAndPassword(auth, email, password)
             .then((res) => {
                 console.log(res);
-                setError("");
-                navigation.navigate('LoginRecruit');  // Navigate to the Login screen on success
+                setError(""); // Clear error on successful login
+                navigation.navigate("HomeRecruit"); // Navigate to HomeRecruit screen
             })
             .catch((err) => {
-                setError(err.message);
+                setError(err.message); // Display error from Firebase
             });
     }
 
     return (
         <View style={styles.container}>
-            <Text style={styles.text}>Register</Text>
+            <Text style={styles.text}>Login</Text>
 
             {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
@@ -51,13 +49,8 @@ export default function Register_Recruit() {
                 secureTextEntry
             />
 
-            <TouchableOpacity style={styles.button_container} onPress={signUp}>
-                <Text style={styles.button_text}>Sign Up</Text>
-            </TouchableOpacity>
-
-            {/* Already a user? Navigate to Login */}
-            <TouchableOpacity onPress={() => navigation.navigate('LoginRecruit')}>
-                <Text style={styles.linkText}>Already a user? Log in here</Text>
+            <TouchableOpacity style={styles.button_container} onPress={login}>
+                <Text style={styles.button_text}>Login</Text>
             </TouchableOpacity>
         </View>
     );
@@ -98,12 +91,5 @@ const styles = StyleSheet.create({
         padding: 15,
         backgroundColor: "#1976d2",
         justifyContent: "center",
-    },
-    linkText: {
-        textAlign: "center",
-        fontSize: 16,
-        color: "#1976d2",
-        marginTop: 15,
-        textDecorationLine: 'underline',
     },
 });
