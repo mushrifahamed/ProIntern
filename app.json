@@ -25,11 +25,14 @@
     },
     "plugins": [
       [
-      "expo-font",
-      {
-        "fonts": ["./assets/fonts/Poppins-Regular.ttf"]
-      }
+        "expo-font",
+        {
+          "fonts": [
+            "./assets/fonts/Poppins-Regular.ttf"
+          ]
+        }
+      ],
+      "expo-router"
     ]
-  ]
   }
 }
