@@ -33,6 +33,8 @@ import Settings_Intern from "./screens/Intern/Settings_Intern";
 import Notifications_Intern from "./screens/Intern/Notifications_Intern";
 import Contact_Intern from "./screens/Intern/Contact_Intern";
 import Apply_Intern from "./screens/Intern/Apply_Intern";
+import JournalPage_Intern from "./screens/Intern/JournalPage_Intern";
+import JournalCreate_Intern from "./screens/Intern/JournalCreate_Intern";
 
 // Onboarding and RoleSelect screens
 import LaunchScreen from "./screens/LaunchScreen";
@@ -152,6 +154,11 @@ export default function App() {
           component={Notifications_Intern}
         />
         <Stack.Screen name="Contact_Intern" component={Contact_Intern} />
+
+        <Stack.Screen name="JournalPage_Intern" component={JournalPage_Intern} />   
+
+        <Stack.Screen name="JournalCreate_Intern" component={JournalCreate_Intern} />   
+
       </Stack.Navigator>
     </NavigationContainer>
   );

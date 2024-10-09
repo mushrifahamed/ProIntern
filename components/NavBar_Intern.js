@@ -92,17 +92,17 @@ const CustomNavBar = () => {
 
       {/* Journal Icon */}
       <TouchableOpacity
-        onPress={() => handleNavigation("Journal")}
+        onPress={() => handleNavigation("JournalPage_Intern")}
         style={[
           styles.navItem,
-          selectedTab === "Journal" && styles.selectedTab,
+          selectedTab === "JournalPage_Intern" && styles.selectedTab,
         ]}
       >
         <JournalIcon size={28} />
         <Text
           style={[
             styles.customNavItem,
-            selectedTab === "Journal" && styles.selectedText,
+            selectedTab === "JournalPage_Intern" && styles.selectedText,
           ]}
         >
           Journal
