@@ -193,17 +193,18 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     backgroundColor: '#f2f6ff',
     padding: 10,
-    marginTop: 60,
+    marginTop: 10,
   },
   editJournalButton: {
     backgroundColor: '#023E8A',
-    padding: 15,
-    borderRadius: 5,
+    padding: 12,
+    borderRadius: 10,
     alignItems: 'center',
   },
   editJournalButtonText: {
     color: '#ffffff',
     fontWeight: 'bold',
+     fontSize: 18,
   },
   modalContainer: {
     flex: 1,

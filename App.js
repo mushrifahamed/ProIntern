@@ -155,9 +155,36 @@ export default function App() {
         />
         <Stack.Screen name="Contact_Intern" component={Contact_Intern} />
 
-        <Stack.Screen name="JournalPage_Intern" component={JournalPage_Intern} options={{ headerShown: true }} />   
+          <Stack.Screen 
+          name="JournalPage_Intern" 
+          component={JournalPage_Intern} 
+          options={{ 
+            headerShown: true, 
+            title: 'Journal Home', // Set your custom header title here
+            headerTitleStyle: { 
+              color: '#023E8A', // Set the title color here
+              fontSize: 22, // Optional: adjust the font size
+            },
+            headerTintColor: '#023E8A', // Color for the back button and any icons
+          }} 
+        />
 
-        <Stack.Screen name="JournalCreate_Intern" component={JournalCreate_Intern}  options={{ headerShown: true }} />   
+
+      <Stack.Screen 
+        name="JournalCreate_Intern" 
+        component={JournalCreate_Intern}  
+        options={{ 
+          headerShown: true,
+          title: 'Create Journal',
+          headerTitleStyle: {
+            color: '#023E8A', // Change the title color
+            fontSize: 20, // You can adjust the font size as needed
+          }
+        }} 
+      />
+
+        
+         
 
       </Stack.Navigator>
     </NavigationContainer>
