@@ -1,40 +1,92 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet, Modal, TextInput } from 'react-native';
-import { Calendar } from 'react-native-calendars'; // Importing the calendar component
-import moment from 'moment'; // Importing moment.js for date manipulation
+import { Calendar } from 'react-native-calendars';
+import moment from 'moment';
+import { db } from '../../firebase'; // Import Firebase
+import { doc, setDoc, getDoc } from 'firebase/firestore';
+import { auth } from '../../firebase'; // Ensure you import auth
 
 const JournalPage = ({ navigation }) => {
-  const [selectedDate, setSelectedDate] = useState(''); // Date selection state
-  const [modalVisible, setModalVisible] = useState(true); // Modal visibility for internship input
-  const [startDate, setStartDate] = useState(''); // Start date of internship
-  const [duration, setDuration] = useState(''); // Duration of internship in months
-  const [endDate, setEndDate] = useState(''); // Calculated end date of internship
-  const [calendarVisible, setCalendarVisible] = useState(false); // Toggle calendar visibility
-  const [showWelcome, setShowWelcome] = useState(true); // State to control the visibility of the welcome title
+  const [selectedDate, setSelectedDate] = useState('');
+  const [modalVisible, setModalVisible] = useState(false); // Initially set to false
+  const [startDate, setStartDate] = useState('');
+  const [duration, setDuration] = useState('');
+  const [endDate, setEndDate] = useState('');
+  const [calendarVisible, setCalendarVisible] = useState(false);
+  const [showWelcome, setShowWelcome] = useState(true);
+  const [detailsSaved, setDetailsSaved] = useState(false); // New state variable to track if details are saved
+  
+  const userId = auth.currentUser ? auth.currentUser.uid : null; // Get current user ID
 
-  // Function to validate date format
-  const isValidDate = (date) => {
-    return moment(date, 'YYYY-MM-DD', true).isValid(); // Strict validation
-  };
+  console.log('Current User ID:', userId); // Log the current user ID
+  
+  // Load existing internship details when the component mounts
+  useEffect(() => {
+    const loadInternshipDetails = async () => {
+      if (userId) {
+        try {
+          const internshipRef = doc(db, 'internshipjournal', userId);
+          const internshipDoc = await getDoc(internshipRef);
 
-  // Handle the internship details submission
-  const handleInternshipSubmit = () => {
+          if (internshipDoc.exists()) {
+            const data = internshipDoc.data();
+            console.log('Loaded Data:', data); // Log the loaded data
+            setStartDate(data.startDate);
+            setDuration(data.duration.toString()); // Ensure duration is a string for TextInput
+            
+            const formattedStartDate = moment(data.startDate, 'YYYY-MM-DD');
+            const calculatedEndDate = formattedStartDate.clone().add(data.duration, 'months');
+            setEndDate(calculatedEndDate.format('YYYY-MM-DD'));
+
+            // Show calendar and hide modal
+            setCalendarVisible(true);
+            setShowWelcome(false);
+            setDetailsSaved(true);
+          } else {
+            console.log('No internship data found. Showing modal.'); // Log when no data is found
+            setModalVisible(true);
+          }
+        } catch (error) {
+          console.error("Error loading internship details:", error);
+          alert("Failed to load internship details. Please try again.");
+        }
+      } else {
+        console.log('User not logged in or ID is null.'); // Log if user is not logged in
+      }
+    };
+
+    loadInternshipDetails();
+  }, [userId]);
+  
+  const isValidDate = (date) => moment(date, 'YYYY-MM-DD', true).isValid();
+
+  const handleInternshipSubmit = async () => {
     if (isValidDate(startDate) && duration) {
       const parsedDuration = parseInt(duration);
-      
+
       if (isNaN(parsedDuration) || parsedDuration <= 0) {
         alert('Please enter a valid duration in months.');
         return;
       }
 
-      const formattedStartDate = moment(startDate, 'YYYY-MM-DD'); // Parse the start date
-      const calculatedEndDate = formattedStartDate.clone().add(parsedDuration, 'months'); // Calculate end date
+      const formattedStartDate = moment(startDate, 'YYYY-MM-DD');
+      const calculatedEndDate = formattedStartDate.clone().add(parsedDuration, 'months');
 
       if (formattedStartDate.isValid() && calculatedEndDate.isValid()) {
-        setEndDate(calculatedEndDate.format('YYYY-MM-DD')); // Save the end date
-        setModalVisible(false); // Hide the modal after submission
-        setCalendarVisible(true); // Show the calendar
-        setShowWelcome(false); // Hide the welcome title
+        setEndDate(calculatedEndDate.format('YYYY-MM-DD'));
+        setModalVisible(false);
+        setCalendarVisible(true);
+        setShowWelcome(false);
+        setDetailsSaved(true); // Mark details as saved
+
+        // Save internship details to Firestore
+        const internshipRef = doc(db, 'internshipjournal', userId);
+        await setDoc(internshipRef, {
+          userId: userId, // Add user ID here
+          startDate: formattedStartDate.format('YYYY-MM-DD'),
+          duration: parsedDuration,
+          endDate: calculatedEndDate.format('YYYY-MM-DD'),
+        });
       } else {
         alert('Invalid date format. Please use YYYY-MM-DD format.');
       }
@@ -44,34 +96,31 @@ const JournalPage = ({ navigation }) => {
   };
 
   const onDayPress = (day) => {
-    setSelectedDate(day.dateString); // Update the selected date when a day is pressed
-    console.log("Selected Date:", day.dateString); // Log selected date
+    setSelectedDate(day.dateString);
+    console.log("Selected Date:", day.dateString);
   };
 
   const handleEditJournal = () => {
     if (selectedDate) {
       navigation.navigate('JournalCreate_Intern', { date: selectedDate });
     } else {
-      alert("Please select a date to edit your journal entry."); // Simple alert if no date is selected
+      alert("Please select a date to edit your journal entry.");
     }
   };
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      {/* Welcome Title */}
       {showWelcome && (
         <Text style={styles.title}>Welcome to Your Internship Journal</Text>
       )}
-
-      {/* Calendar Selection */}
       {calendarVisible && (
         <Calendar
           onDayPress={onDayPress}
           markedDates={{
             [selectedDate]: { selected: true, marked: true, selectedColor: '#023E8A' },
           }}
-          minDate={startDate || undefined} // Start date of the internship
-          maxDate={endDate || undefined} // End date of the internship
+          minDate={startDate || undefined}
+          maxDate={endDate || undefined}
           theme={{
             selectedDayBackgroundColor: '#023E8A',
             selectedDayTextColor: '#ffffff',
@@ -79,11 +128,9 @@ const JournalPage = ({ navigation }) => {
             monthTextColor: '#023E8A',
             arrowColor: '#023E8A',
           }}
-          style={styles.calendar} // Styling for the calendar
+          style={styles.calendar}
         />
       )}
-
-      {/* Edit Journal Button */}
       {calendarVisible && (
         <TouchableOpacity
           style={styles.editJournalButton}
@@ -92,27 +139,21 @@ const JournalPage = ({ navigation }) => {
           <Text style={styles.editJournalButtonText}>Edit Journal</Text>
         </TouchableOpacity>
       )}
-
-      {/* Modal for Internship Period Input */}
       <Modal
         transparent={true}
         animationType="slide"
         visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)} // Close modal on back button
+        onRequestClose={() => setModalVisible(false)}
       >
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
             <Text style={styles.modalText}>Enter Your Internship Details</Text>
-            
-            {/* Internship Start Date Input */}
             <TextInput
               placeholder="Enter Start Date (YYYY-MM-DD)"
               value={startDate}
               onChangeText={setStartDate}
               style={styles.input}
             />
-            
-            {/* Internship Duration Input */}
             <TextInput
               placeholder="Enter Duration in Months"
               value={duration}
@@ -120,11 +161,9 @@ const JournalPage = ({ navigation }) => {
               keyboardType="numeric"
               style={styles.input}
             />
-            
-            {/* Submit Button */}
             <TouchableOpacity
               style={styles.modalButton}
-              onPress={handleInternshipSubmit} // Handle submission of internship details
+              onPress={handleInternshipSubmit}
             >
               <Text style={styles.modalButtonText}>Submit</Text>
             </TouchableOpacity>
@@ -154,60 +193,52 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     backgroundColor: '#f2f6ff',
     padding: 10,
-    marginTop: 60, // Adjust this value to move the calendar downwards
+    marginTop: 60,
   },
   editJournalButton: {
     backgroundColor: '#023E8A',
-    paddingVertical: 12,
-    paddingHorizontal: 112,
-    borderRadius: 10,
-    alignSelf: 'center',
-    marginTop: 20,
-    elevation: 4, // Adding elevation for a subtle shadow
+    padding: 15,
+    borderRadius: 5,
+    alignItems: 'center',
   },
   editJournalButtonText: {
     color: '#ffffff',
-    textAlign: 'center',
-    fontSize: 18,
     fontWeight: 'bold',
   },
   modalContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Semi-transparent background
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   modalContent: {
     width: '80%',
     padding: 20,
     backgroundColor: '#ffffff',
     borderRadius: 10,
-    elevation: 5,
   },
   modalText: {
     fontSize: 18,
-    color: '#023E8A',
-    marginBottom: 20,
-    textAlign: 'center',
+    fontWeight: 'bold',
+    marginBottom: 15,
   },
   input: {
+    height: 40,
     borderColor: '#023E8A',
     borderWidth: 1,
     borderRadius: 5,
-    padding: 10,
-    marginBottom: 20,
-    fontSize: 16,
-    color: '#023E8A',
+    marginBottom: 15,
+    paddingHorizontal: 10,
   },
   modalButton: {
     backgroundColor: '#023E8A',
-    paddingVertical: 10,
+    padding: 10,
     borderRadius: 5,
   },
   modalButtonText: {
     color: '#ffffff',
+    fontWeight: 'bold',
     textAlign: 'center',
-    fontSize: 16,
   },
 });
 

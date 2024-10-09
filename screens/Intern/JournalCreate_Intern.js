@@ -12,13 +12,14 @@ import {
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Feather';
 import * as ImagePicker from 'expo-image-picker';
-import { db, storage } from '../../firebase';
+import { db, storage } from '../../firebase'; // Import Firebase
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { doc, setDoc, getDoc, deleteDoc } from 'firebase/firestore';
 import { format } from 'date-fns';
+import { auth } from '../../firebase'; // Ensure you import auth
 
-const JournalCreate = ({ route, navigation }) => {
-  const { date } = route.params;
+const JournalCreate_Intern = ({ route, navigation }) => {
+  const { date } = route.params; // Get the selected date from the route
   const [journalTitle, setJournalTitle] = useState('');
   const [journalContent, setJournalContent] = useState('');
   const [image, setImage] = useState(null);
@@ -28,11 +29,15 @@ const JournalCreate = ({ route, navigation }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const formattedDate = format(new Date(date), 'EEEE, MMMM d, yyyy');
+  const [userId, setUserId] = useState('');
 
   // Load existing journal entry if available
   useEffect(() => {
+    const currentUserId = auth.currentUser ? auth.currentUser.uid : null;
+    setUserId(currentUserId);
+
     const loadJournalEntry = async () => {
-      const journalRef = doc(db, 'journals', date.toString());
+      const journalRef = doc(db, 'journalInternships', `${currentUserId}_${date}`);
       const journalDoc = await getDoc(journalRef);
 
       if (journalDoc.exists()) {
@@ -73,10 +78,10 @@ const JournalCreate = ({ route, navigation }) => {
       alert('Please fill in the title and content.');
       return;
     }
-
+  
     setUploading(true);
     let imageUrl = null;
-
+  
     try {
       if (image) {
         const response = await fetch(image);
@@ -85,15 +90,16 @@ const JournalCreate = ({ route, navigation }) => {
         await uploadBytes(imageRef, blob);
         imageUrl = await getDownloadURL(imageRef);
       }
-
-      const journalRef = doc(db, 'journals', date.toString());
+  
+      const journalRef = doc(db, 'journalInternships', `${userId}_${date}`);
       await setDoc(journalRef, {
+        userId: userId, // Add userId here
         title: journalTitle,
         content: journalContent,
         date: formattedDate,
         imageUrl: imageUrl || '',
       });
-
+  
       alert('Journal saved successfully!');
       setUploading(false);
       navigation.goBack();
@@ -103,7 +109,7 @@ const JournalCreate = ({ route, navigation }) => {
       setUploading(false);
     }
   };
-
+  
   const handleContentChange = (text) => {
     setPreviousContent(journalContent); // Store previous content for undo
     setJournalContent(text);
@@ -143,7 +149,7 @@ const JournalCreate = ({ route, navigation }) => {
           text: "Delete",
           onPress: async () => {
             try {
-              const journalRef = doc(db, 'journals', date.toString());
+              const journalRef = doc(db, 'journalInternships', `${userId}_${date}`);
               await deleteDoc(journalRef);
               alert('Journal entry deleted successfully!');
               navigation.goBack();
@@ -280,70 +286,70 @@ const styles = StyleSheet.create({
     shadowColor: '#000',
     shadowOpacity: 0.2,
     shadowRadius: 6,
-    elevation: 2,
+    elevation: 3,
   },
   label: {
-    fontSize: 14,
+    fontSize: 16,
+    color: '#495057',
     marginBottom: 5,
-    fontWeight: 'bold',
-    color: '#023E8A', // Set text color here
-    
   },
   titleInput: {
-    borderWidth: 0.5,
-    borderColor: '#023E8A',
-    borderRadius: 6,
+    borderColor: '#ddd',
+    borderWidth: 1,
+    borderRadius: 5,
     padding: 10,
     marginBottom: 15,
-    
   },
   contentInput: {
-    borderWidth: 0.5,
-    borderColor: '#023E8A',
-    borderRadius: 6,
+    borderColor: '#ddd',
+    borderWidth: 1,
+    borderRadius: 5,
     padding: 10,
-    marginBottom: 15,
     height: 100,
+    marginBottom: 15,
   },
   imageIconContainer: {
-    marginBottom: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 15,
   },
   imageThumbnail: {
-    width: 70,
-    height: 70,
-    borderRadius: 8,
-    marginVertical: 10,
+    width: 100,
+    height: 100,
+    borderRadius: 10,
   },
   saveButton: {
-    backgroundColor: '#023E8A', // Color for save button
+    backgroundColor: '#023E8A', // Theme color
+    borderRadius: 10,
     padding: 15,
-    borderRadius: 6,
     alignItems: 'center',
   },
   saveButtonText: {
     color: '#fff',
+    fontSize: 16,
     fontWeight: 'bold',
   },
   modalContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: '#000000',
   },
   modalImage: {
     width: '100%',
-    height: '50%',
-    resizeMode: 'contain',
+    height: '100%',
   },
   closeButton: {
+    position: 'absolute',
+    bottom: 20,
     padding: 10,
-    backgroundColor: '#ff0000',
+    backgroundColor: '#e63946', // Color for close button
     borderRadius: 5,
-    marginTop: 20,
   },
   closeButtonText: {
     color: '#fff',
-    fontWeight: 'bold',
+    fontSize: 16,
   },
 });
 
-export default JournalCreate;
+export default JournalCreate_Intern;

@@ -155,9 +155,9 @@ export default function App() {
         />
         <Stack.Screen name="Contact_Intern" component={Contact_Intern} />
 
-        <Stack.Screen name="JournalPage_Intern" component={JournalPage_Intern} />   
+        <Stack.Screen name="JournalPage_Intern" component={JournalPage_Intern} options={{ headerShown: true }} />   
 
-        <Stack.Screen name="JournalCreate_Intern" component={JournalCreate_Intern} />   
+        <Stack.Screen name="JournalCreate_Intern" component={JournalCreate_Intern}  options={{ headerShown: true }} />   
 
       </Stack.Navigator>
     </NavigationContainer>
