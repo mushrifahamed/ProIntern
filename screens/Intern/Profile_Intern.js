@@ -162,7 +162,7 @@ const Profile_Intern = () => {
       <View style={styles.container}>
         {/* Header */}
         <View style={styles.header}>
-          <Ionicons name="arrow-back" size={24} color="black" style={styles.backIcon} onPress={() => navigation.navigate('Home_Intern')} />
+          <Ionicons name="arrow-back" size={24} color="black" style={styles.backIcon} onPress={() => navigation.goBack()} />
           <Text style={styles.headerText}>My Profile</Text>
         </View>
 

@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 import { Feather, Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import { getFirestore, collection, query, where, getDocs, getDoc } from 'firebase/firestore'; 
+import { getFirestore, collection, query, where, getDocs, doc, getDoc } from 'firebase/firestore'; 
 import { getAuth } from 'firebase/auth';
 import { app } from '../../firebase';
 import NavBar_Intern from '../../components/NavBar_Intern';
@@ -249,7 +249,7 @@ const styles = StyleSheet.create({
   itemSalary: {
     fontSize: 14,
     color: '#000',
-    marginTop: 2,
+    marginTop: 1,
     fontFamily: 'Poppins-Regular',
   },
   itemDate: {
