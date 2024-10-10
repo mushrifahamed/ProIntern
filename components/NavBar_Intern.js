@@ -73,7 +73,7 @@ const CustomNavBar = () => {
 
       {/* Tasks Icon */}
       <TouchableOpacity
-        onPress={() => handleNavigation("Tasks")}
+        onPress={() => handleNavigation("ListTask")}
         style={[
           styles.navItem,
           selectedTab === "Tasks" && styles.selectedTab,

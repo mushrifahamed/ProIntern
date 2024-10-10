@@ -23,6 +23,10 @@ import Interview_Recruit from "./screens/Recruit/Interview_Recruit";
 import ApplicationReview_Recruit from "./screens/Recruit/ApplicationReview_Recruit";
 import ForgotPass_Recruit from "./screens/Recruit/ForgotPass_Recruit";
 import InterviewUpdate_Recruit from "./screens/Recruit/InterviewUpdate_Recruit";
+import AddTask from './screens/Intern/AddTask_intern';
+import ListTask from './screens/Intern/ListTask_intern';
+import ViewTask from './screens/Intern/ViewTask_intern';
+import UpdateTask from './screens/Intern/UpdateTask_intern';
 
 // Intern screens
 import Register_Intern from "./screens/Intern/Register_Intern";
@@ -167,6 +171,10 @@ export default function App() {
           component={Notifications_Intern}
         />
         <Stack.Screen name="Contact_Intern" component={Contact_Intern} />
+        <Stack.Screen name="AddTask" component={AddTask} />
+        <Stack.Screen name="ListTask" component={ListTask} />
+        <Stack.Screen name="ViewTask" component={ViewTask} />
+        <Stack.Screen name="UpdateTask" component={UpdateTask} />
 
         <Stack.Screen
           name="JournalPage_Intern"
