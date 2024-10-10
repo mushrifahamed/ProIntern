@@ -42,6 +42,8 @@ import Apply_Intern from "./screens/Intern/Apply_Intern";
 import Applications_Intern from "./screens/Intern/Applications_Intern";
 import JournalPage_Intern from "./screens/Intern/JournalPage_Intern";
 import JournalCreate_Intern from "./screens/Intern/JournalCreate_Intern";
+import JournalHome_Intern from  "./screens/Intern/JournalHome_Intern";
+import JournalRoadMap_Intern from "./screens/Intern/JournalRoadMap_Intern";
 import ForgotPass_intern from "./screens/Intern/ForgotPass_intern";
 
 // Onboarding and RoleSelect screens
@@ -175,33 +177,61 @@ export default function App() {
         <Stack.Screen name="ListTask" component={ListTask} />
         <Stack.Screen name="ViewTask" component={ViewTask} />
         <Stack.Screen name="UpdateTask" component={UpdateTask} />
+        <Stack.Screen 
+        name="JournalHome_Intern" 
+        component={JournalHome_Intern}  
+        options={{ 
+          headerShown: true,
+          title: 'Journal Home',
+          headerTitleStyle: {
+            color: '#023E8A', // Change the title color
+            fontSize: 20, // You can adjust the font size as needed
+          }
+        }} 
+      />
 
-        <Stack.Screen
-          name="JournalPage_Intern"
-          component={JournalPage_Intern}
-          options={{
-            headerShown: true,
-            title: "Journal Home", // Set your custom header title here
-            headerTitleStyle: {
-              color: "#023E8A", // Set the title color here
+          <Stack.Screen 
+          name="JournalPage_Intern" 
+          component={JournalPage_Intern} 
+          options={{ 
+            headerShown: true, 
+            title: 'Journal Home', // Set your custom header title here
+            headerTitleStyle: { 
+              color: '#023E8A', // Set the title color here
               fontSize: 22, // Optional: adjust the font size
             },
-            headerTintColor: "#023E8A", // Color for the back button and any icons
-          }}
+            headerTintColor: '#023E8A', // Color for the back button and any icons
+          }} 
         />
 
-        <Stack.Screen
-          name="JournalCreate_Intern"
-          component={JournalCreate_Intern}
-          options={{
-            headerShown: true,
-            title: "Create Journal",
-            headerTitleStyle: {
-              color: "#023E8A", // Change the title color
-              fontSize: 20, // You can adjust the font size as needed
-            },
-          }}
-        />
+
+      <Stack.Screen 
+        name="JournalCreate_Intern" 
+        component={JournalCreate_Intern}  
+        options={{ 
+          headerShown: true,
+          title: 'Create Journal',
+          headerTitleStyle: {
+            color: '#023E8A', // Change the title color
+            fontSize: 20, // You can adjust the font size as needed
+          }
+        }} 
+      />
+
+        
+      <Stack.Screen 
+        name="JournalRoadMap_Intern" 
+        component={JournalRoadMap_Intern}  
+        options={{ 
+          headerShown: true,
+          title: 'Journal RoadMap',
+          headerTitleStyle: {
+            color: '#023E8A', // Change the title color
+            fontSize: 20, // You can adjust the font size as needed
+          }
+        }} 
+      />
+
 
         <Stack.Screen name="ForgotPass_intern" component={ForgotPass_intern} />
       </Stack.Navigator>
