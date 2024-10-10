@@ -21,13 +21,14 @@ import Contact_Recruit from "./screens/Recruit/Contact_Recruit";
 import Applicants_Recruit from "./screens/Recruit/Applicants_Recruit";
 import Interview_Recruit from "./screens/Recruit/Interview_Recruit";
 import ApplicationReview_Recruit from "./screens/Recruit/ApplicationReview_Recruit";
+import ForgotPass_Recruit from "./screens/Recruit/ForgotPass_Recruit";
 
 // Intern screens
 import Register_Intern from "./screens/Intern/Register_Intern";
 import ProfilePicture_Intern from "./screens/Intern/ProfilePicture_Intern";
 import Preferences_Intern from "./screens/Intern/Preferences_Intern";
 import Login_Intern from "./screens/Intern/Login_Intern";
-import Home_Intern from "./screens/Intern/Home_Intern"; // Import the Home screen for after login
+import Home_Intern from "./screens/Intern/Home_Intern";
 import Profile_Intern from "./screens/Intern/Profile_Intern";
 import Settings_Intern from "./screens/Intern/Settings_Intern";
 import Notifications_Intern from "./screens/Intern/Notifications_Intern";
@@ -133,6 +134,7 @@ export default function App() {
           name="ApplicationReviewRecruit"
           component={ApplicationReview_Recruit}
         />
+        <Stack.Screen name="ForgotPassRecruit" component={ForgotPass_Recruit} />
 
         {/* Intern screens */}
         <Stack.Screen name="Register_Intern" component={Register_Intern} />
@@ -155,37 +157,32 @@ export default function App() {
         />
         <Stack.Screen name="Contact_Intern" component={Contact_Intern} />
 
-          <Stack.Screen 
-          name="JournalPage_Intern" 
-          component={JournalPage_Intern} 
-          options={{ 
-            headerShown: true, 
-            title: 'Journal Home', // Set your custom header title here
-            headerTitleStyle: { 
-              color: '#023E8A', // Set the title color here
+        <Stack.Screen
+          name="JournalPage_Intern"
+          component={JournalPage_Intern}
+          options={{
+            headerShown: true,
+            title: "Journal Home", // Set your custom header title here
+            headerTitleStyle: {
+              color: "#023E8A", // Set the title color here
               fontSize: 22, // Optional: adjust the font size
             },
-            headerTintColor: '#023E8A', // Color for the back button and any icons
-          }} 
+            headerTintColor: "#023E8A", // Color for the back button and any icons
+          }}
         />
 
-
-      <Stack.Screen 
-        name="JournalCreate_Intern" 
-        component={JournalCreate_Intern}  
-        options={{ 
-          headerShown: true,
-          title: 'Create Journal',
-          headerTitleStyle: {
-            color: '#023E8A', // Change the title color
-            fontSize: 20, // You can adjust the font size as needed
-          }
-        }} 
-      />
-
-        
-         
-
+        <Stack.Screen
+          name="JournalCreate_Intern"
+          component={JournalCreate_Intern}
+          options={{
+            headerShown: true,
+            title: "Create Journal",
+            headerTitleStyle: {
+              color: "#023E8A", // Change the title color
+              fontSize: 20, // You can adjust the font size as needed
+            },
+          }}
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );

@@ -8,22 +8,15 @@ import {
   StatusBar,
 } from "react-native";
 import { auth } from "../../firebase.js";
-import { signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
-import {
-  useNavigation,
-  useFocusEffect,
-  useRoute,
-} from "@react-navigation/native";
+import { sendPasswordResetEmail } from "firebase/auth";
+import { useNavigation } from "@react-navigation/native";
 import colors from "../../assets/colors";
 import * as Font from "expo-font";
 
-export default function Login_Recruit() {
+export default function ForgotPass_Recruit() {
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const navigation = useNavigation();
-  const route = useRoute(); // Get route to access params
-  const fromProfilePic = route.params?.fromProfilePic || false; // Default to false if not passed
 
   useEffect(() => {
     async function loadFonts() {
@@ -35,28 +28,16 @@ export default function Login_Recruit() {
     loadFonts();
   }, []);
 
-  useFocusEffect(
-    React.useCallback(() => {
-      const unsubscribe = onAuthStateChanged(auth, (user) => {
-        if (user && !fromProfilePic) {
-          // Prevent auto login if navigated from ProfilePic
-          navigation.navigate("HomeRecruit");
-        }
-      });
-      return () => unsubscribe();
-    }, [navigation, fromProfilePic]) // Add fromProfilePic as a dependency
-  );
-
-  function login() {
-    if (email === "" || password === "") {
-      setError("Email and password are required.");
+  function sendCode() {
+    if (email === "") {
+      setError("Email is required.");
       return;
     }
-    signInWithEmailAndPassword(auth, email, password)
-      .then((res) => {
-        console.log(res);
-        setError(""); // Clear error on successful login
-        navigation.navigate("HomeRecruit"); // Navigate to HomeRecruit screen
+    sendPasswordResetEmail(auth, email)
+      .then(() => {
+        setError(""); // Clear error on successful send
+        alert("Password reset email sent to your email address.");
+        navigation.navigate("LoginRecruit");
       })
       .catch((err) => {
         setError(err.message); // Display error from Firebase
@@ -65,7 +46,7 @@ export default function Login_Recruit() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.text}>Login to your Account</Text>
+      <Text style={styles.text}>Forgot Password</Text>
 
       {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
@@ -81,35 +62,14 @@ export default function Login_Recruit() {
         />
       </View>
 
-      <View style={styles.inputGroup}>
-        <Text style={styles.label}>Password</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Enter password"
-          value={password}
-          onChangeText={(text) => setPassword(text)}
-          secureTextEntry
-        />
-      </View>
-
-      <TouchableOpacity style={styles.button_container} onPress={login}>
-        <Text style={styles.button_text}>Login</Text>
+      <TouchableOpacity style={styles.button_container} onPress={sendCode}>
+        <Text style={styles.button_text}>Send Link</Text>
       </TouchableOpacity>
 
       <View style={styles.registerContainer}>
-        <Text style={styles.registerText}>Haven't registered yet?</Text>
-        <TouchableOpacity
-          onPress={() => navigation.navigate("RegisterRecruit")}
-        >
-          <Text style={styles.registerLink}>Register here</Text>
-        </TouchableOpacity>
-      </View>
-      <View style={styles.registerContainer}>
-        <Text style={styles.registerText}>Forgot your password?</Text>
-        <TouchableOpacity
-          onPress={() => navigation.navigate("ForgotPassRecruit")}
-        >
-          <Text style={styles.registerLink}>Reset here</Text>
+        <Text style={styles.registerText}>Already know your password?</Text>
+        <TouchableOpacity onPress={() => navigation.navigate("LoginRecruit")}>
+          <Text style={styles.registerLink}>Go back to login</Text>
         </TouchableOpacity>
       </View>
     </View>
