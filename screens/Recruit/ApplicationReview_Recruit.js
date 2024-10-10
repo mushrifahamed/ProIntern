@@ -13,14 +13,17 @@ import { doc, updateDoc } from "firebase/firestore";
 import { db } from "../../firebase";
 import { Ionicons } from "@expo/vector-icons";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
+import { useFocusEffect } from "@react-navigation/native";
 
 const ApplicationReview_Recruit = ({ route, navigation }) => {
   const { applicationData } = route.params;
   const [internData, setInternData] = useState({});
 
-  useEffect(() => {
-    setInternData(applicationData);
-  }, [applicationData]);
+  useFocusEffect(
+    React.useCallback(() => {
+      setInternData(applicationData);
+    }, [applicationData])
+  );
 
   const handleAcceptPress = async () => {
     if (internData) {
@@ -46,6 +49,13 @@ const ApplicationReview_Recruit = ({ route, navigation }) => {
     navigation.navigate("InterviewRecruit", {
       // Pass any required parameters here
       internData: internData,
+    });
+  };
+
+  const handleUpdateInterviewPress = async () => {
+    navigation.navigate("InterviewUpdateRecruit", {
+      // Pass any required parameters here
+      interviewId: internData.interviewId,
     });
   };
 
@@ -176,12 +186,21 @@ const ApplicationReview_Recruit = ({ route, navigation }) => {
         >
           <Text style={styles.buttonText}>Accept</Text>
         </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.scheduleButton}
-          onPress={handleScheduleInterviewPress}
-        >
-          <Text style={styles.buttonText}>Schedule Interview</Text>
-        </TouchableOpacity>
+        {getInternStatus() === "In Review" ? (
+          <TouchableOpacity
+            style={styles.scheduleButton}
+            onPress={handleUpdateInterviewPress}
+          >
+            <Text style={styles.buttonText}>Update Interview</Text>
+          </TouchableOpacity>
+        ) : (
+          <TouchableOpacity
+            style={styles.scheduleButton}
+            onPress={handleScheduleInterviewPress}
+          >
+            <Text style={styles.buttonText}>Schedule Interview</Text>
+          </TouchableOpacity>
+        )}
         <TouchableOpacity
           style={styles.downloadButton}
           onPress={() => handleDownloadCVPress(internData.intern?.cvUrl)}

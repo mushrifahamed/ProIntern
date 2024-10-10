@@ -22,6 +22,7 @@ import Applicants_Recruit from "./screens/Recruit/Applicants_Recruit";
 import Interview_Recruit from "./screens/Recruit/Interview_Recruit";
 import ApplicationReview_Recruit from "./screens/Recruit/ApplicationReview_Recruit";
 import ForgotPass_Recruit from "./screens/Recruit/ForgotPass_Recruit";
+import InterviewUpdate_Recruit from "./screens/Recruit/InterviewUpdate_Recruit";
 
 // Intern screens
 import Register_Intern from "./screens/Intern/Register_Intern";
@@ -137,6 +138,10 @@ export default function App() {
           component={ApplicationReview_Recruit}
         />
         <Stack.Screen name="ForgotPassRecruit" component={ForgotPass_Recruit} />
+        <Stack.Screen
+          name="InterviewUpdateRecruit"
+          component={InterviewUpdate_Recruit}
+        />
 
         {/* Intern screens */}
         <Stack.Screen name="Register_Intern" component={Register_Intern} />
