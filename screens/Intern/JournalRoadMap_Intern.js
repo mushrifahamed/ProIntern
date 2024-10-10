@@ -224,6 +224,7 @@ const styles = StyleSheet.create({
     color: '#fff',
     textAlign: 'center',
     marginBottom: 20,
+    fontFamily: 'Poppins-Regular',
   },
   scrollContainer: {
     flexGrow: 1,
