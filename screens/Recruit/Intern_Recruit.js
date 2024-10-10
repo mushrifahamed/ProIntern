@@ -153,6 +153,7 @@ const Intern_Recruit = ({ navigation }) => {
           description,
           logo: logoUrl,
           userId: currentUser.uid,
+          createdAt: Timestamp.now(),
         });
 
         alert("Internship details submitted!");
