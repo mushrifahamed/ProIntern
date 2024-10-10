@@ -282,10 +282,10 @@ const Home_Intern = () => {
                   <Feather name="user" size={24} color="black" />
                   <Text style={styles.menuItemText}>Profile</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.menuItem}>
+                {/* <TouchableOpacity style={styles.menuItem}>
                   <Feather name="book" size={24} color="black" />
                   <Text style={styles.menuItemText}>Courses</Text>
-                </TouchableOpacity>
+                </TouchableOpacity> */}
                 <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate('Settings_Intern')}>
                   <Feather name="settings" size={24} color="black" />
                   <Text style={styles.menuItemText}>Settings</Text>
@@ -351,6 +351,7 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 4,
     marginRight: 10,
+    fontFamily: 'Poppins-Regular',
   },
   filterIcon: {
     backgroundColor: '#034694',
@@ -365,10 +366,11 @@ const styles = StyleSheet.create({
   },
   recommendationsText: {
     marginLeft: 20,
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '600',
     color: '#333',
     marginBottom: 10,
+    fontFamily: 'Poppins-SemiBold',
   },
   itemContainer: {
     flexDirection: 'row',
@@ -397,11 +399,13 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     color: '#000',
+    fontFamily: 'Poppins-SemiBold',
   },
   itemType: {
     fontSize: 14,
     color: '#666',
-    marginTop: 2,
+    marginTop: 1,
+    fontFamily: 'Poppins-Regular',
   },
   itemSalary: {
     fontSize: 14,
@@ -476,7 +480,7 @@ const styles = StyleSheet.create({
   applyButtonText: {
     color: 'white',
     fontSize: 16,
-    fontWeight: 'bold',
+    fontFamily: 'Poppins-Regular',
   },
   modalCompany: {
     fontSize: 16,
@@ -535,6 +539,7 @@ const styles = StyleSheet.create({
   profileContainer: {
     alignItems: 'center',
     marginBottom: 20,
+    fontFamily: 'Poppins-SemiBold',
   },
   menuProfilePic: {
     width: 80,
@@ -543,13 +548,14 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   menuProfileName: {
-    fontSize: 18,
-    fontWeight: 'bold',
+    fontSize: 16,
     color: '#333',
+    fontFamily: 'Poppins-SemiBold',
   },
   menuProfileEmail: {
     fontSize: 14,
     color: '#666',
+    fontFamily: 'Poppins-Regular',
   },
   menuItemsContainer: {
     marginTop: 20,
@@ -563,9 +569,10 @@ const styles = StyleSheet.create({
     borderBottomColor: '#eee',
   },
   menuItemText: {
-    fontSize: 16,
+    fontSize: 15.5,
     marginLeft: 20,
     color: '#333',
+    fontFamily: 'Poppins-Regular'
   },
   overlay: {
     position: 'absolute',
