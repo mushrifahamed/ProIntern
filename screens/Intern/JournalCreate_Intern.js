@@ -31,7 +31,8 @@ const JournalCreate_Intern = ({ route, navigation }) => {
   const [previousContent, setPreviousContent] = useState('');
   const [isEditing, setIsEditing] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
-  const formattedDate = format(new Date(date), 'EEEE, MMMM d, yyyy');
+  const formattedDate = format(new Date(date), 'yyyy-MM-dd');
+
   const [userId, setUserId] = useState('');
   const [fadeAnim] = useState(new Animated.Value(0));
 
