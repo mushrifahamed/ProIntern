@@ -245,7 +245,7 @@ const styles = StyleSheet.create({
   },
   addButton: {
     flex: 1,
-    backgroundColor: '#1C274C',
+    backgroundColor: '#034694',
     padding: 15,
     borderRadius: 8,
     alignItems: 'center',
