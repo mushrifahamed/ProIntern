@@ -13,16 +13,21 @@ import { db } from '../../firebase'; // Adjust the import based on your file str
 import { collection, query, where, getDocs, Timestamp } from 'firebase/firestore';
 import { Calendar } from 'react-native-calendars';
 import { Ionicons } from '@expo/vector-icons';
+import { getAuth } from 'firebase/auth'; // Import getAuth to access user info
 
 export default function ListTask({ navigation }) {
   const [tasks, setTasks] = useState([]);
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
+  const auth = getAuth(); // Get the current user
+  const currentUser = auth.currentUser;
 
   useEffect(() => {
-    fetchTasks(selectedDate);
-  }, [selectedDate]);
+    if (currentUser) {
+      fetchTasks(selectedDate, currentUser.uid);
+    }
+  }, [selectedDate, currentUser]);
 
-  const fetchTasks = async (date) => {
+  const fetchTasks = async (date, userId) => {
     try {
       const startOfDay = new Date(date);
       const endOfDay = new Date(date);
@@ -30,12 +35,16 @@ export default function ListTask({ navigation }) {
 
       const taskQuery = query(
         collection(db, 'tasks'),
+        where('userId', '==', userId), // Filter by user ID
         where('dueDate', '>=', Timestamp.fromDate(startOfDay)),
         where('dueDate', '<=', Timestamp.fromDate(endOfDay))
       );
 
       const querySnapshot = await getDocs(taskQuery);
-      const tasksData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      const tasksData = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
 
       setTasks(tasksData.sort((a, b) => a.dueDate.toDate() - b.dueDate.toDate()));
     } catch (error) {
