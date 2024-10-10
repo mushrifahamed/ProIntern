@@ -55,6 +55,7 @@ const Applicants_Recruit = () => {
   const [internships, setInternships] = useState([]);
   const [applications, setApplications] = useState([]);
   const [interns, setInterns] = useState([]);
+  const [refreshing, setRefreshing] = useState(false);
 
   const changeStatusBarVisibility = () => setHidden(!hidden);
 
@@ -130,6 +131,49 @@ const Applicants_Recruit = () => {
       fetchApplications();
     }, [])
   );
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    try {
+      const recruiterId = auth.currentUser.uid;
+      const querySnapshot = await getDocs(
+        query(
+          collection(db, "applications"),
+          where("recruiterId", "==", recruiterId)
+        )
+      );
+      const applications = querySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+
+      const combinedData = await Promise.all(
+        applications.map(async (application) => {
+          const internshipDoc = await getDoc(
+            doc(db, "internships", application.internshipId)
+          );
+          const internDoc = await getDoc(
+            doc(db, "Interns", application.internId)
+          );
+
+          console.log("Intern Data: ", internDoc.data());
+
+          return {
+            ...application,
+            internship: { ...internshipDoc.data(), id: internshipDoc.id },
+            intern: { ...internDoc.data(), id: internDoc.id },
+          };
+        })
+      );
+
+      setData(combinedData);
+      console.log(combinedData);
+    } catch (error) {
+      console.error("Error fetching applications:", error);
+    } finally {
+      setRefreshing(false);
+    }
+  };
 
   const handleSearch = (query) => {
     setSearchQuery(query);
@@ -274,6 +318,8 @@ const Applicants_Recruit = () => {
           }
           contentContainerStyle={{ flexGrow: 1 }}
           showsVerticalScrollIndicator={true}
+          refreshing={refreshing}
+          onRefresh={handleRefresh}
         />
       </View>
 

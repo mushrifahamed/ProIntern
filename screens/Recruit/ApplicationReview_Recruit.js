@@ -32,6 +32,7 @@ const ApplicationReview_Recruit = ({ route, navigation }) => {
         status: "Accepted",
       });
       console.log("Application accepted");
+      navigation.goBack();
     }
   };
 
@@ -42,6 +43,7 @@ const ApplicationReview_Recruit = ({ route, navigation }) => {
         status: "Rejected",
       });
       console.log("Application rejected");
+      navigation.goBack();
     }
   };
 
@@ -174,18 +176,24 @@ const ApplicationReview_Recruit = ({ route, navigation }) => {
         <Text style={getStatusContainerStyle()}>Status: {getStatusText()}</Text>
       </View>
       <View style={styles.buttons}>
-        <TouchableOpacity
-          style={styles.rejectButton}
-          onPress={handleRejectPress}
-        >
-          <Text style={styles.buttonText}>Reject</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.acceptButton}
-          onPress={handleAcceptPress}
-        >
-          <Text style={styles.buttonText}>Accept</Text>
-        </TouchableOpacity>
+        {getInternStatus() !== "Accepted" &&
+        getInternStatus() !== "Rejected" ? (
+          <>
+            <TouchableOpacity
+              style={styles.rejectButton}
+              onPress={handleRejectPress}
+            >
+              <Text style={styles.buttonText}>Reject</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.acceptButton}
+              onPress={handleAcceptPress}
+            >
+              <Text style={styles.buttonText}>Accept</Text>
+            </TouchableOpacity>
+          </>
+        ) : null}
+
         {getInternStatus() === "In Review" ? (
           <TouchableOpacity
             style={styles.scheduleButton}
@@ -298,6 +306,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     marginBottom: 10,
     marginTop: 20,
+    marginRight: 10,
     width: "48%",
   },
   downloadButton: {

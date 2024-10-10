@@ -49,6 +49,7 @@ const Home_Recruit = () => {
   const [isModalVisible, setIsModalVisible] = useState(false); // Modal visibility state
   const modalTranslateY = useRef(new Animated.Value(300)).current; // Modal animation
   const [hidden, setHidden] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
   const changeStatusBarVisibility = () => setHidden(!hidden);
 
@@ -108,6 +109,32 @@ const Home_Recruit = () => {
       fetchInternships();
     }, [])
   );
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    try {
+      const currentUser = auth.currentUser;
+      if (currentUser) {
+        const querySnapshot = await getDocs(
+          query(
+            collection(db, "internships"),
+            where("userId", "==", currentUser.uid)
+          )
+        );
+        const internships = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setData(internships);
+      } else {
+        console.error("No current user found.");
+      }
+    } catch (error) {
+      console.error("Error fetching internships:", error);
+    } finally {
+      setRefreshing(false);
+    }
+  };
 
   const handleSearch = (query) => {
     setSearchQuery(query);
@@ -259,6 +286,8 @@ const Home_Recruit = () => {
         ListEmptyComponent={
           <Text style={styles.emptyText}>No internships found.</Text>
         }
+        refreshing={refreshing}
+        onRefresh={handleRefresh}
       />
 
       <TouchableOpacity
