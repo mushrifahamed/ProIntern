@@ -14,15 +14,15 @@ import {
   ScrollView,
   Easing,
   TouchableWithoutFeedback,
+  RefreshControl, // Import RefreshControl
 } from 'react-native';
 import { Feather, Ionicons } from '@expo/vector-icons'; // Icons for menu and other actions
 import { useNavigation } from '@react-navigation/native';
 import { getFirestore, collection, getDocs, getDoc, doc } from 'firebase/firestore'; // Firestore functions
-import { getAuth } from 'firebase/auth';
+import { getAuth, signOut } from 'firebase/auth';
 import { app } from '../../firebase'; // Ensure firebase.js is correctly set up and imported
 import NavBar_Intern from '../../components/NavBar_Intern'; // Custom Navigation Bar
 import colors from "../../assets/colors"; // Colors file
-import { signOut } from 'firebase/auth'; // Import signOut from Firebase Auth
 
 const db = getFirestore(app);
 const auth = getAuth(app);
@@ -32,6 +32,7 @@ const Home_Intern = () => {
   const [data, setData] = useState([]); // Fetched internships
   const [recommendations, setRecommendations] = useState([]); // Recommended internships
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false); // State for refreshing
   const [user, setUser] = useState(null); // For storing user info
   const [preferences, setPreferences] = useState([]); // User preferences
 
@@ -44,59 +45,62 @@ const Home_Intern = () => {
   const navigation = useNavigation(); // Use navigation hook for screen navigation
 
   // Fetch current user profile picture and preferences
-  useEffect(() => {
-    const fetchUser = async () => {
-      const currentUser = auth.currentUser;
-      if (currentUser) {
-        try {
-          const userProfileDoc = await getDoc(doc(db, 'Interns', currentUser.uid)); // Fetch user profile
-          if (userProfileDoc.exists()) {
-            const userData = userProfileDoc.data();
-            setUser({
-              ...currentUser,
-              name: userData.fullName || currentUser.displayName , // User name or default
-              email: userData.email || currentUser.email, // User email or currentUser email
-              pic: userData.profilePicture || 'https://default-avatar-url.com/default-avatar.jpg', // Default image
-            });
-            setPreferences(userData.preferences || []); // Fetch preferences
-          }
-        } catch (error) {
-          console.error('Error fetching user data:', error);
-        }
-      }
-    };
-
-    fetchUser();
-  }, []);
-
-  // Fetch internships once when the component mounts
-  useEffect(() => {
-    const fetchInternships = async () => {
-      setLoading(true);
+  const fetchUser = async () => {
+    const currentUser = auth.currentUser;
+    if (currentUser) {
       try {
-        const querySnapshot = await getDocs(collection(db, 'internships')); // Fetch internships
-        const internships = querySnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-
-        setData(internships); // Store all internships
-
-        // Filter internships where any user preference matches the category for recommendations
-        const matchedInternships = internships.filter((internship) =>
-          preferences.some((preference) => internship.category === preference)
-        );
-
-        setRecommendations(matchedInternships); // Store recommendations
+        const userProfileDoc = await getDoc(doc(db, 'Interns', currentUser.uid)); // Fetch user profile
+        if (userProfileDoc.exists()) {
+          const userData = userProfileDoc.data();
+          setUser({
+            ...currentUser,
+            name: userData.fullName || currentUser.displayName, // User name or default
+            email: userData.email || currentUser.email, // User email or currentUser email
+            pic: userData.profilePicture || 'https://default-avatar-url.com/default-avatar.jpg', // Default image
+          });
+          setPreferences(userData.preferences || []); // Fetch preferences
+        }
       } catch (error) {
-        console.error('Error fetching internships:', error);
-      } finally {
-        setLoading(false);
+        console.error('Error fetching user data:', error);
       }
-    };
+    }
+  };
 
+  // Fetch internships data
+  const fetchInternships = async () => {
+    setLoading(true);
+    try {
+      const querySnapshot = await getDocs(collection(db, 'internships')); // Fetch internships
+      const internships = querySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+
+      setData(internships); // Store all internships
+
+      // Filter internships where any user preference matches the category for recommendations
+      const matchedInternships = internships.filter((internship) =>
+        preferences.some((preference) => internship.category === preference)
+      );
+
+      setRecommendations(matchedInternships); // Store recommendations
+    } catch (error) {
+      console.error('Error fetching internships:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchUser();
     fetchInternships();
   }, [preferences]);
+
+  // Pull-to-refresh functionality
+  const onRefresh = () => {
+    setRefreshing(true);
+    fetchInternships().finally(() => setRefreshing(false));
+  };
 
   // Filter internships based on search query (search from all available internships)
   const handleSearch = (query) => {
@@ -227,6 +231,9 @@ const Home_Intern = () => {
         renderItem={renderItem}
         ListEmptyComponent={<Text style={styles.emptyText}>No internships found.</Text>}
         contentContainerStyle={styles.listContainer}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
       />
 
       {/* Modal for showing selected internship details */}
@@ -268,44 +275,39 @@ const Home_Intern = () => {
 
       {/* Sliding Menu */}
       {isMenuVisible && (
-            <Animated.View style={[styles.menuContainer, { transform: [{ translateX: menuTranslateX }] }]}>
-              <View style={styles.menuHeader}>
-                <Feather name="arrow-left" size={24} color="black" onPress={toggleMenu} />
-              </View>
-              <View style={styles.profileContainer}>
-                <Image source={{ uri: user?.pic }} style={styles.menuProfilePic} />
-                <Text style={styles.menuProfileName}>{user?.name}</Text>
-                <Text style={styles.menuProfileEmail}>{user?.email}</Text>
-              </View>
-              <View style={styles.menuItemsContainer}>
-                <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate('Profile_Intern')}>
-                  <Feather name="user" size={24} color="black" />
-                  <Text style={styles.menuItemText}>Profile</Text>
-                </TouchableOpacity>
-                {/* <TouchableOpacity style={styles.menuItem}>
-                  <Feather name="book" size={24} color="black" />
-                  <Text style={styles.menuItemText}>Courses</Text>
-                </TouchableOpacity> */}
-                <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate('Settings_Intern')}>
-                  <Feather name="settings" size={24} color="black" />
-                  <Text style={styles.menuItemText}>Settings</Text>
-                </TouchableOpacity>
-                {/* Log Out Button */}
-                <TouchableOpacity style={styles.menuItem} onPress={handleLogout}>
-                  <Feather name="log-out" size={24} color="black" />
-                  <Text style={styles.menuItemText}>Log Out</Text>
-                </TouchableOpacity>
-              </View>
-            </Animated.View>
-          )}
+        <Animated.View style={[styles.menuContainer, { transform: [{ translateX: menuTranslateX }] }]}>
+          <View style={styles.menuHeader}>
+            <Feather name="arrow-left" size={24} color="black" onPress={toggleMenu} />
+          </View>
+          <View style={styles.profileContainer}>
+            <Image source={{ uri: user?.pic }} style={styles.menuProfilePic} />
+            <Text style={styles.menuProfileName}>{user?.name}</Text>
+            <Text style={styles.menuProfileEmail}>{user?.email}</Text>
+          </View>
+          <View style={styles.menuItemsContainer}>
+            <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate('Profile_Intern')}>
+              <Feather name="user" size={24} color="black" />
+              <Text style={styles.menuItemText}>Profile</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate('Settings_Intern')}>
+              <Feather name="settings" size={24} color="black" />
+              <Text style={styles.menuItemText}>Settings</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.menuItem} onPress={handleLogout}>
+              <Feather name="log-out" size={24} color="black" />
+              <Text style={styles.menuItemText}>Log Out</Text>
+            </TouchableOpacity>
+          </View>
+        </Animated.View>
+      )}
 
-          {/* Handle tapping outside the menu to close */}
-          {isMenuVisible && <TouchableWithoutFeedback onPress={handleOutsideTap}><View style={styles.overlay} /></TouchableWithoutFeedback>}
+      {/* Handle tapping outside the menu to close */}
+      {isMenuVisible && <TouchableWithoutFeedback onPress={handleOutsideTap}><View style={styles.overlay} /></TouchableWithoutFeedback>}
 
-          {/* Custom Navigation Bar */}
-          <NavBar_Intern />
-        </SafeAreaView>
-      );
+      {/* Custom Navigation Bar */}
+      <NavBar_Intern />
+    </SafeAreaView>
+  );
 };
 
 const styles = StyleSheet.create({

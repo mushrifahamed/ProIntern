@@ -10,6 +10,7 @@ import {
   StatusBar,
   TextInput,
   ActivityIndicator,
+  RefreshControl,
 } from 'react-native';
 import { Feather, Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
@@ -17,7 +18,7 @@ import { getFirestore, collection, query, where, getDocs, doc, getDoc } from 'fi
 import { getAuth } from 'firebase/auth';
 import { app } from '../../firebase';
 import NavBar_Intern from '../../components/NavBar_Intern';
-import colors from "../../assets/colors";
+import colors from "../../assets/colors";  // Importing the colors from the colors.js file
 
 const db = getFirestore(app);
 const auth = getAuth(app);
@@ -25,73 +26,116 @@ const auth = getAuth(app);
 const Applications_Intern = () => {
   const [applications, setApplications] = useState([]); // Fetched applications
   const [loading, setLoading] = useState(true); // Loader
+  const [refreshing, setRefreshing] = useState(false); // For pull-to-refresh
   const [searchQuery, setSearchQuery] = useState('');
   const [user, setUser] = useState(null);
   const navigation = useNavigation();
 
   // Fetch the applications and user details
-  useEffect(() => {
-    const fetchApplicationsAndProfile = async () => {
-      const currentUser = auth.currentUser;
-      if (currentUser) {
-        try {
-          setLoading(true);
+  const fetchApplicationsAndProfile = async () => {
+    const currentUser = auth.currentUser;
+    if (currentUser) {
+      try {
+        setLoading(true);
 
-          // Fetch user profile from Interns collection
-          const userDoc = await getDoc(doc(db, 'Interns', currentUser.uid));
-          if (userDoc.exists()) {
-            const userData = userDoc.data();
-            setUser({
-              pic: userData.profilePicture || 'https://default-avatar-url.com/default-avatar.jpg', // Fallback for profile picture
-            });
-          }
+        // Fetch user profile from Interns collection
+        const userDocRef = doc(db, 'Interns', currentUser.uid);
+        const userDoc = await getDoc(userDocRef);
 
-          // Fetch applications of the logged-in user
-          const applicationsQuery = query(collection(db, 'applications'), where('internId', '==', currentUser.uid));
-          const applicationsSnapshot = await getDocs(applicationsQuery);
-
-          const applicationsData = await Promise.all(applicationsSnapshot.docs.map(async (doc) => {
-            const application = doc.data();
-            // Fetch internship details by matching internshipId with internships collection
-            const internshipDoc = await getDoc(doc(db, 'internships', application.internshipId));
-            if (internshipDoc.exists()) {
-              const internshipData = internshipDoc.data();
-              return {
-                id: doc.id,
-                ...application,
-                jobTitle: internshipData.jobTitle,
-                jobType: internshipData.jobType,
-                salary: internshipData.salary,
-                logo: internshipData.logo, // Assuming logo is stored in the internships collection
-              };
-            }
-            return null; // If internship not found, skip the entry
-          }));
-
-          setApplications(applicationsData.filter(Boolean)); // Filter out null entries
-
-        } catch (error) {
-          console.error('Error fetching applications or user profile:', error);
-        } finally {
-          setLoading(false);
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
+          setUser({
+            pic: userData.profilePicture || 'https://default-avatar-url.com/default-avatar.jpg', // Fallback for profile picture
+          });
         }
-      }
-    };
 
+        // Fetch applications of the logged-in user
+        const applicationsQuery = query(collection(db, 'applications'), where('internId', '==', currentUser.uid));
+        const applicationsSnapshot = await getDocs(applicationsQuery);
+
+        const applicationsData = await Promise.all(applicationsSnapshot.docs.map(async (docSnap) => {
+          const application = docSnap.data();
+          // Fetch internship details by matching internshipId with internships collection
+          const internshipDocRef = doc(db, 'internships', application.internshipId);
+          const internshipDoc = await getDoc(internshipDocRef);
+          if (internshipDoc.exists()) {
+            const internshipData = internshipDoc.data();
+            return {
+              id: docSnap.id,
+              ...application,
+              jobTitle: internshipData.jobTitle,
+              jobType: internshipData.jobType,
+              logo: internshipData.logo, // Assuming logo is stored in the internships collection
+              status: application.status, // Get the status from the applications collection
+            };
+          }
+          return null; // If internship not found, skip the entry
+        }));
+
+        setApplications(applicationsData.filter(Boolean)); // Filter out null entries
+
+      } catch (error) {
+        console.error('Error fetching applications or user profile:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+  };
+
+  useEffect(() => {
     fetchApplicationsAndProfile();
   }, []);
 
-  const renderItem = ({ item }) => (
-    <View style={styles.itemContainer}>
-      <Image source={{ uri: item.logo }} style={styles.itemLogo} />
-      <View style={styles.itemDetails}>
-        <Text style={styles.itemTitle}>{item.jobTitle}</Text>
-        <Text style={styles.itemType}>{item.jobType}</Text>
-        <Text style={styles.itemSalary}>Rs. {item.salary}</Text>
-        <Text style={styles.itemDate}>Applied On: {new Date(item.appliedOn.seconds * 1000).toDateString()}</Text>
+  // Handle pull-to-refresh
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await fetchApplicationsAndProfile();
+    setRefreshing(false);
+  };
+
+  const getStatusStyles = (status) => {
+    switch (status) {
+      case 'Accepted':
+        return {
+          backgroundColor: colors.status.accepted.background,
+          color: colors.status.accepted.text,
+        };
+      case 'In Review':
+        return {
+          backgroundColor: colors.status.inReview.background,
+          color: colors.status.inReview.text,
+        };
+      case 'Rejected':
+        return {
+          backgroundColor: colors.status.rejected.background,
+          color: colors.status.rejected.text,
+        };
+      case 'Applied':
+      default:
+        return {
+          backgroundColor: colors.status.applied.background,
+          color: colors.status.applied.text,
+        };
+    }
+  };
+
+  const renderItem = ({ item }) => {
+    const statusStyles = getStatusStyles(item.status);
+
+    return (
+      <View style={styles.itemContainer}>
+        <Image source={{ uri: item.logo }} style={styles.itemLogo} />
+        <View style={styles.itemDetails}>
+          <Text style={styles.itemTitle}>{item.jobTitle}</Text>
+          <Text style={styles.itemType}>{item.jobType}</Text>
+          <Text style={styles.itemDate}>Applied On: {new Date(item.appliedOn.seconds * 1000).toDateString()}</Text>
+        </View>
+        <View style={[styles.statusContainer, { backgroundColor: statusStyles.backgroundColor }]}>
+          <Text style={[styles.statusText, { color: statusStyles.color }]}>{item.status}</Text>
+        </View>
       </View>
-    </View>
-  );
+    );
+  };
 
   const filteredApplications = applications.filter((application) =>
     application.jobTitle.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -139,6 +183,13 @@ const Applications_Intern = () => {
         renderItem={renderItem}
         ListEmptyComponent={<Text style={styles.emptyText}>You haven't applied for any internships yet.</Text>}
         contentContainerStyle={styles.listContainer}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={[colors.primary]}
+          />
+        }
       />
 
       {/* Custom Navigation Bar */}
@@ -246,16 +297,20 @@ const styles = StyleSheet.create({
     marginTop: 2,
     fontFamily: 'Poppins-Regular',
   },
-  itemSalary: {
-    fontSize: 14,
-    color: '#000',
-    marginTop: 1,
-    fontFamily: 'Poppins-Regular',
-  },
   itemDate: {
     fontSize: 12,
     color: '#888',
     marginTop: 2,
+    fontFamily: 'Poppins-Regular',
+  },
+  statusContainer: {
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    borderRadius: 10,
+  },
+  statusText: {
+    fontSize: 14,
+    fontWeight: 'bold',
     fontFamily: 'Poppins-Regular',
   },
   emptyText: {
