@@ -264,22 +264,18 @@ const Applicants_Recruit = () => {
         </TouchableOpacity>
       </View>
 
-      <FlatList
-        data={data}
-        keyExtractor={(item) => item.id}
-        renderItem={renderItem}
-        ListEmptyComponent={
-          <Text style={styles.emptyText}>No interns found.</Text>
-        }
-      />
-
-      <TouchableOpacity
-        style={styles.floatingButton}
-        onPress={() => navigation.navigate("InterviewRecruit")}
-        activeOpacity={0.7}
-      >
-        <Ionicons name="add" size={30} color="white" />
-      </TouchableOpacity>
+      <View style={{ flex: 7.5 }}>
+        <FlatList
+          data={data}
+          keyExtractor={(item) => item.id}
+          renderItem={renderItem}
+          ListEmptyComponent={
+            <Text style={styles.emptyText}>No interns found.</Text>
+          }
+          contentContainerStyle={{ flexGrow: 1 }}
+          showsVerticalScrollIndicator={true}
+        />
+      </View>
 
       <CustomNavBar currentScreen="ApplicantsRecruit" />
 
