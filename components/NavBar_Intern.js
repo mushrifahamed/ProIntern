@@ -54,17 +54,17 @@ const CustomNavBar = () => {
 
       {/* Applications Icon */}
       <TouchableOpacity
-        onPress={() => handleNavigation("Applications")}
+        onPress={() => handleNavigation("Applications_Intern")}
         style={[
           styles.navItem,
-          selectedTab === "Applications" && styles.selectedTab,
+          selectedTab === "Applications_Intern" && styles.selectedTab,
         ]}
       >
         <ApplicationsIcon size={28} />
         <Text
           style={[
             styles.customNavItem,
-            selectedTab === "Applications" && styles.selectedText,
+            selectedTab === "Applications_Intern" && styles.selectedText,
           ]}
         >
           Applications

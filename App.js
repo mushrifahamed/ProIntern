@@ -33,6 +33,7 @@ import Settings_Intern from "./screens/Intern/Settings_Intern";
 import Notifications_Intern from "./screens/Intern/Notifications_Intern";
 import Contact_Intern from "./screens/Intern/Contact_Intern";
 import Apply_Intern from "./screens/Intern/Apply_Intern";
+import Applications_Intern from "./screens/Intern/Applications_Intern";
 import JournalPage_Intern from "./screens/Intern/JournalPage_Intern";
 import JournalCreate_Intern from "./screens/Intern/JournalCreate_Intern";
 
@@ -148,6 +149,7 @@ export default function App() {
         <Stack.Screen name="Home_Intern" component={Home_Intern} />
         <Stack.Screen name="Profile_Intern" component={Profile_Intern} />
         <Stack.Screen name="Apply_Intern" component={Apply_Intern} />
+        <Stack.Screen name="Applications_Intern" component={Applications_Intern} />
         <Stack.Screen name="Settings_Intern" component={Settings_Intern} />
         <Stack.Screen
           name="Notifications_Intern"

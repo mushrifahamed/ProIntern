@@ -91,6 +91,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
     textAlign: 'center',
     marginBottom: 30,
+    fontFamily: 'Poppins-SemiBold',
   },
   input: {
     backgroundColor: '#fff',
@@ -98,6 +99,9 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     marginBottom: 15,
     fontSize: 16,
+    fontFamily: 'Poppins-Regular',
+    marginLeft: 10,
+    marginRight: 10,
   },
   button: {
     backgroundColor: '#fff',
@@ -105,10 +109,13 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     alignItems: 'center',
     marginBottom: 20,
+    marginLeft: 70,
+    marginRight: 70,
   },
   buttonText: {
     color: '#034694',
     fontSize: 16,
+    fontFamily: 'Poppins-Regular',
   },
   error: {
     color: 'red',
@@ -118,7 +125,9 @@ const styles = StyleSheet.create({
   footerText: {
     color: '#fff',
     textAlign: 'center',
-    fontSize: 16,
+    fontSize: 14,
+    fontFamily: 'Poppins-Regular',
+    paddingBottom: 10,
   },
 });
 

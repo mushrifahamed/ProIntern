@@ -251,7 +251,7 @@ const styles = StyleSheet.create({
   },
   headerText: {
     fontSize: 20,
-    fontWeight: 'bold',
+    fontFamily: 'Poppins-SemiBold',
     marginLeft: 10,
   },
   backIcon: {
@@ -260,7 +260,7 @@ const styles = StyleSheet.create({
   profileContainer: {
     flexDirection: 'column',
     alignItems: 'center',
-    marginTop: 50,
+    marginTop: 20,
     marginBottom: 20,
   },
   profilePic: {
@@ -275,6 +275,7 @@ const styles = StyleSheet.create({
   label: {
     color: '#4B5563',
     marginBottom: 5,
+    fontFamily: 'Poppins-Regular',
   },
   input: {
     borderWidth: 1,
@@ -284,6 +285,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     backgroundColor: '#F9FAFB',
     marginVertical: 5,
+    fontFamily: 'Poppins-Regular',
   },
   cvContainer: {
     marginBottom: 20,
@@ -306,6 +308,7 @@ const styles = StyleSheet.create({
   cvText: {
     marginLeft: 10,
     color: '#6B7280',
+    fontFamily: 'Poppins-Regular',
   },
   preferences: {
     flexDirection: 'row',
@@ -321,18 +324,19 @@ const styles = StyleSheet.create({
   },
   preferenceText: {
     color: '#374151',
+    fontFamily: 'Poppins-Regular',
   },
   saveButton: {
     backgroundColor: colors.primary,
     paddingVertical: 12,
     borderRadius: 10,
-    marginTop: 30,
+    marginTop: 20,
     alignItems: 'center',
   },
   saveButtonText: {
     color: 'white',
     fontSize: 16,
-    fontWeight: 'bold',
+    fontFamily: 'Poppins-SemiBold',
   },
 });
 
