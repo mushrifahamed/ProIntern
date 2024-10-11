@@ -18,6 +18,7 @@ import { useNavigation } from '@react-navigation/native';
 import { app } from '../../firebase'; // Make sure firebase is initialized
 import { SelectList } from "react-native-dropdown-select-list";
 import colors from '../../assets/colors';
+import { Linking } from 'react-native';
 
 const db = getFirestore(app);
 const storage = getStorage(app);
@@ -99,25 +100,59 @@ const Apply_Intern = ({ route }) => {
   }, [internshipId]);
 
   const handleCVUpload = async () => {
-    const result = await DocumentPicker.getDocumentAsync({ type: 'application/pdf' });
-    if (!result.canceled && result.uri) {
-      const currentUser = auth.currentUser;
-      const storageRef = ref(storage, `interns/${currentUser.uid}/cv.pdf`);
-      const response = await fetch(result.uri);
-      const blob = await response.blob();
-      await uploadBytes(storageRef, blob);
-      const downloadURL = await getDownloadURL(storageRef);
-      setCvUrl(downloadURL);
-      setCvFileName(result.name);
-
-      // Update CV URL in Firestore
-      await updateDoc(doc(db, 'Interns', currentUser.uid), { cvUrl: downloadURL });
-      Alert.alert('CV uploaded successfully');
-    } else {
-      Alert.alert('No file selected');
+    try {
+      console.log("Starting CV upload...");
+      
+      // Select the PDF document
+      const result = await DocumentPicker.getDocumentAsync({ type: 'application/pdf' });
+      console.log("Document selected:", result);
+  
+      // Check if the document was selected and access the URI from the assets array
+      if (!result.canceled && result.assets && result.assets[0].uri) {
+        const documentUri = result.assets[0].uri;
+        const documentName = result.assets[0].name;
+  
+        console.log("Document URI:", documentUri);
+        console.log("Document Name:", documentName);
+  
+        // Get current user
+        const currentUser = auth.currentUser;
+        console.log("Current user:", currentUser.uid);
+  
+        // Prepare storage reference
+        const storageRef = ref(storage, `interns/${currentUser.uid}/cv.pdf`);
+        console.log("Storage reference:", storageRef);
+  
+        // Fetch the document file and convert to blob
+        const response = await fetch(documentUri);
+        const blob = await response.blob();
+        console.log("File fetched and converted to blob.");
+  
+        // Upload to Firebase storage
+        await uploadBytes(storageRef, blob);
+        console.log("CV uploaded successfully to Firebase storage.");
+  
+        // Get the download URL
+        const downloadURL = await getDownloadURL(storageRef);
+        console.log("Download URL:", downloadURL);
+  
+        // Update CV URL in Firestore
+        setCvUrl(downloadURL);
+        setCvFileName(documentName);
+        await updateDoc(doc(db, 'Interns', currentUser.uid), { cvUrl: downloadURL });
+        console.log("CV URL updated in Firestore.");
+  
+        Alert.alert('CV uploaded successfully');
+      } else {
+        console.log("No file selected.");
+        Alert.alert('No file selected');
+      }
+    } catch (error) {
+      console.error("Error uploading CV:", error);
+      Alert.alert('Error', 'Failed to upload CV');
     }
-  };
-
+  };  
+  
   const handleDownloadCV = async () => {
     if (cvUrl) {
       try {
@@ -133,7 +168,10 @@ const Apply_Intern = ({ route }) => {
 
   const handleApply = async () => {
     const currentUser = auth.currentUser;
-    if (!currentUser || !internshipId) return;
+    if (!currentUser || !internshipId || !cvUrl || !coverLetter) {
+      Alert.alert('Error', 'Please fill all fields and upload a CV');
+      return;
+    }
 
     // Check if the intern has already applied
     if (userData.appliedInternships.includes(internshipId)) {
@@ -153,6 +191,7 @@ const Apply_Intern = ({ route }) => {
         status: 'Applied',
         appliedOn: new Date(),
         coverLetter,
+        cvUrl, // Include the CV URL in the application
       };
 
       await addDoc(collection(db, 'applications'), applicationData);
@@ -239,7 +278,7 @@ const Apply_Intern = ({ route }) => {
               </View>
             </TouchableOpacity>
             <TouchableOpacity onPress={handleCVUpload}>
-              <Ionicons name="document-outline" size={24} color={'#034694'} />
+              <Ionicons name="pencil-outline" size={24} color={'#034694'} />
             </TouchableOpacity>
           </View>
         </View>

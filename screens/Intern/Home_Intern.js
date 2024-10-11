@@ -30,6 +30,7 @@ import { getAuth, signOut } from "firebase/auth";
 import { app } from "../../firebase"; // Ensure firebase.js is correctly set up and imported
 import NavBar_Intern from "../../components/NavBar_Intern"; // Custom Navigation Bar
 import colors from "../../assets/colors"; // Colors file
+import { Alert } from 'react-native';
 
 const db = getFirestore(app);
 const auth = getAuth(app);
@@ -162,13 +163,31 @@ const Home_Intern = () => {
   };
 
   const handleLogout = async () => {
-    try {
-      await signOut(auth);
-      navigation.navigate("Login_Intern");
-    } catch (error) {
-      console.error("Error logging out: ", error);
-    }
+    Alert.alert(
+      'Confirm Logout',
+      'Are you sure you want to log out?',
+      [
+        {
+          text: 'Cancel',
+          onPress: () => console.log('Logout cancelled'),
+          style: 'cancel',
+        },
+        {
+          text: 'Log Out',
+          onPress: async () => {
+            try {
+              await signOut(auth);
+              navigation.navigate("Login_Intern");
+            } catch (error) {
+              console.error("Error logging out: ", error);
+            }
+          },
+        },
+      ],
+      { cancelable: true }
+    );
   };
+  
 
   // Toggle sliding menu
   const toggleMenu = () => {
