@@ -230,7 +230,7 @@ export default function App() {
             fontSize: 20, // You can adjust the font size as needed
           }
         }} 
-      />
+      />  
 
 
         <Stack.Screen name="ForgotPass_intern" component={ForgotPass_intern} />

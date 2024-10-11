@@ -98,7 +98,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     color: '#ffffff',
     fontSize: 24,
-    fontWeight: 'bold',
+    fontFamily: 'Poppins-SemiBold', // Poppins SemiBold
     marginLeft: 15,
   },
   contentContainer: {
@@ -108,13 +108,14 @@ const styles = StyleSheet.create({
   welcomeText: {
     color: '#ffffff',
     fontSize: 32,
-    fontWeight: 'bold',
+    fontFamily: 'Poppins-SemiBold', // Poppins SemiBold
     textAlign: 'center',
     marginBottom: 10,
   },
   subText: {
     color: '#ffffff',
     fontSize: 18,
+    fontFamily: 'Poppins-Regular', // Poppins Regular
     textAlign: 'center',
     marginBottom: 30,
   },
@@ -153,15 +154,17 @@ const styles = StyleSheet.create({
   buttonText: {
     color: '#023E8A',
     fontSize: 18,
-    fontWeight: 'bold',
+    fontFamily: 'Poppins-SemiBold', // Poppins SemiBold
   },
   buttonSubText: {
     color: '#666',
     fontSize: 14,
+    fontFamily: 'Poppins-Regular', // Poppins Regular
   },
   footerText: {
     color: '#ffffff',
     fontSize: 16,
+    fontFamily: 'Poppins-Regular', // Poppins Regular
     textAlign: 'center',
     marginBottom: 20,
   },

@@ -302,6 +302,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     color: '#023E8A',
     fontWeight: '600',
+    fontFamily: 'Poppins-SemiBold', // Poppins SemiBold
   },
   inputContainer: {
     backgroundColor: '#ffffff',
@@ -321,6 +322,7 @@ const styles = StyleSheet.create({
     color: '#023E8A',
     marginBottom: 8,
     fontWeight: '600',
+    fontFamily: 'Poppins-SemiBold', // Poppins SemiBold
   },
   titleInput: {
     borderColor: '#023E8A',
@@ -329,6 +331,7 @@ const styles = StyleSheet.create({
     padding: 12,
     marginBottom: 16,
     fontSize: 16,
+    fontFamily: 'Poppins-Regular', // Poppins Regular
   },
   contentInput: {
     borderColor: '#023E8A',
@@ -337,6 +340,7 @@ const styles = StyleSheet.create({
     padding: 12,
     marginBottom: 16,
     fontSize: 16,
+    fontFamily: 'Poppins-Regular', // Poppins Regular
     minHeight: 150,
     textAlignVertical: 'top',
   },
@@ -390,6 +394,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
     marginLeft: 6,
+    fontFamily: 'Poppins-SemiBold', // Poppins SemiBold
   },
   saveButton: {
     backgroundColor: '#023E8A',
@@ -405,6 +410,7 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 18,
     fontWeight: 'bold',
+    fontFamily: 'Poppins-SemiBold', // Poppins SemiBold
   },
   modalContainer: {
     flex: 1,
@@ -425,5 +431,6 @@ const styles = StyleSheet.create({
     borderRadius: 20,
   },
 });
+
 
 export default JournalCreate_Intern;

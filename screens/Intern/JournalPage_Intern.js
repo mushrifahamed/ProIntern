@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, StyleSheet, Modal, TextInput } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, StyleSheet, Modal, TextInput, SafeAreaView } from 'react-native';
 import { Calendar } from 'react-native-calendars';
 import moment from 'moment';
 import { db } from '../../firebase'; // Import Firebase
@@ -8,19 +8,18 @@ import { auth } from '../../firebase'; // Ensure you import auth
 
 const JournalPage = ({ navigation }) => {
   const [selectedDate, setSelectedDate] = useState('');
-  const [modalVisible, setModalVisible] = useState(false); // Initially set to false
+  const [modalVisible, setModalVisible] = useState(false);
   const [startDate, setStartDate] = useState('');
   const [duration, setDuration] = useState('');
   const [endDate, setEndDate] = useState('');
   const [calendarVisible, setCalendarVisible] = useState(false);
   const [showWelcome, setShowWelcome] = useState(true);
-  const [detailsSaved, setDetailsSaved] = useState(false); // New state variable to track if details are saved
+  const [detailsSaved, setDetailsSaved] = useState(false);
   
-  const userId = auth.currentUser ? auth.currentUser.uid : null; // Get current user ID
+  const userId = auth.currentUser ? auth.currentUser.uid : null;
 
-  console.log('Current User ID:', userId); // Log the current user ID
+  console.log('Current User ID:', userId);
   
-  // Load existing internship details when the component mounts
   useEffect(() => {
     const loadInternshipDetails = async () => {
       if (userId) {
@@ -30,20 +29,19 @@ const JournalPage = ({ navigation }) => {
 
           if (internshipDoc.exists()) {
             const data = internshipDoc.data();
-            console.log('Loaded Data:', data); // Log the loaded data
+            console.log('Loaded Data:', data);
             setStartDate(data.startDate);
-            setDuration(data.duration.toString()); // Ensure duration is a string for TextInput
+            setDuration(data.duration.toString());
             
             const formattedStartDate = moment(data.startDate, 'YYYY-MM-DD');
             const calculatedEndDate = formattedStartDate.clone().add(data.duration, 'months');
             setEndDate(calculatedEndDate.format('YYYY-MM-DD'));
 
-            // Show calendar and hide modal
             setCalendarVisible(true);
             setShowWelcome(false);
             setDetailsSaved(true);
           } else {
-            console.log('No internship data found. Showing modal.'); // Log when no data is found
+            console.log('No internship data found. Showing modal.');
             setModalVisible(true);
           }
         } catch (error) {
@@ -51,7 +49,7 @@ const JournalPage = ({ navigation }) => {
           alert("Failed to load internship details. Please try again.");
         }
       } else {
-        console.log('User not logged in or ID is null.'); // Log if user is not logged in
+        console.log('User not logged in or ID is null.');
       }
     };
 
@@ -77,12 +75,11 @@ const JournalPage = ({ navigation }) => {
         setModalVisible(false);
         setCalendarVisible(true);
         setShowWelcome(false);
-        setDetailsSaved(true); // Mark details as saved
+        setDetailsSaved(true);
 
-        // Save internship details to Firestore
         const internshipRef = doc(db, 'internshipjournal', userId);
         await setDoc(internshipRef, {
-          userId: userId, // Add user ID here
+          userId: userId,
           startDate: formattedStartDate.format('YYYY-MM-DD'),
           duration: parsedDuration,
           endDate: calculatedEndDate.format('YYYY-MM-DD'),
@@ -109,36 +106,40 @@ const JournalPage = ({ navigation }) => {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      {showWelcome && (
-        <Text style={styles.title}>Welcome to Your Internship Journal</Text>
-      )}
-      {calendarVisible && (
-        <Calendar
-          onDayPress={onDayPress}
-          markedDates={{
-            [selectedDate]: { selected: true, marked: true, selectedColor: '#023E8A' },
-          }}
-          minDate={startDate || undefined}
-          maxDate={endDate || undefined}
-          theme={{
-            selectedDayBackgroundColor: '#023E8A',
-            selectedDayTextColor: '#ffffff',
-            dayTextColor: '#023E8A',
-            monthTextColor: '#023E8A',
-            arrowColor: '#023E8A',
-          }}
-          style={styles.calendar}
-        />
-      )}
-      {calendarVisible && (
-        <TouchableOpacity
-          style={styles.editJournalButton}
-          onPress={handleEditJournal}
-        >
-          <Text style={styles.editJournalButtonText}>Edit Journal</Text>
-        </TouchableOpacity>
-      )}
+    <SafeAreaView style={styles.safeArea}>
+      <ScrollView contentContainerStyle={styles.container}>
+        {showWelcome && (
+          <Text style={styles.title}>Welcome to Your Internship Journal</Text>
+        )}
+        {calendarVisible && (
+          <View style={styles.calendarContainer}>
+            <Calendar
+              onDayPress={onDayPress}
+              markedDates={{
+                [selectedDate]: { selected: true, marked: true, selectedColor: '#023E8A' },
+              }}
+              minDate={startDate || undefined}
+              maxDate={endDate || undefined}
+              theme={{
+                selectedDayBackgroundColor: '#023E8A',
+                selectedDayTextColor: '#ffffff',
+                dayTextColor: '#023E8A',
+                monthTextColor: '#023E8A',
+                arrowColor: '#023E8A',
+              }}
+              style={styles.calendar}
+            />
+          </View>
+        )}
+        {calendarVisible && (
+          <TouchableOpacity
+            style={styles.editJournalButton}
+            onPress={handleEditJournal}
+          >
+            <Text style={styles.editJournalButtonText}>Edit Journal</Text>
+          </TouchableOpacity>
+        )}
+      </ScrollView>
       <Modal
         transparent={true}
         animationType="slide"
@@ -170,41 +171,55 @@ const JournalPage = ({ navigation }) => {
           </View>
         </View>
       </Modal>
-    </ScrollView>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#ffffff',
+  },
   container: {
     flexGrow: 1,
     padding: 20,
-    backgroundColor: '#ffffff',
   },
   title: {
     fontSize: 25,
-    fontWeight: 'bold',
+    fontFamily: 'Poppins-SemiBold',
     color: '#023E8A',
-    marginBottom: 10,
-    marginTop: 120,
+    marginBottom: 20,
     textAlign: 'center',
   },
-  calendar: {
-    marginBottom: 20,
-    borderRadius: 10,
+  calendarContainer: {
     backgroundColor: '#f2f6ff',
-    padding: 10,
-    marginTop: 10,
+    borderRadius: 15,
+    padding: 15,
+    marginBottom: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  calendar: {
+    borderRadius: 10,
   },
   editJournalButton: {
     backgroundColor: '#023E8A',
-    padding: 12,
+    padding: 15,
     borderRadius: 10,
     alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
   editJournalButtonText: {
     color: '#ffffff',
-    fontWeight: 'bold',
-     fontSize: 18,
+    fontFamily: 'Poppins-SemiBold',
+    fontSize: 18,
   },
   modalContainer: {
     flex: 1,
@@ -213,33 +228,43 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   modalContent: {
-    width: '80%',
-    padding: 20,
+    width: '85%',
+    padding: 25,
     backgroundColor: '#ffffff',
-    borderRadius: 10,
+    borderRadius: 15,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 5,
   },
   modalText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 15,
+    fontSize: 20,
+    fontFamily: 'Poppins-SemiBold',
+    marginBottom: 20,
+    textAlign: 'center',
+    color: '#023E8A',
   },
   input: {
-    height: 40,
+    height: 50,
     borderColor: '#023E8A',
     borderWidth: 1,
-    borderRadius: 5,
-    marginBottom: 15,
-    paddingHorizontal: 10,
+    borderRadius: 8,
+    marginBottom: 20,
+    paddingHorizontal: 15,
+    fontFamily: 'Poppins-Regular',
+    fontSize: 16,
   },
   modalButton: {
     backgroundColor: '#023E8A',
-    padding: 10,
-    borderRadius: 5,
+    padding: 11,
+    borderRadius: 8,
   },
   modalButtonText: {
     color: '#ffffff',
-    fontWeight: 'bold',
+    fontFamily: 'Poppins-SemiBold',
     textAlign: 'center',
+    fontSize: 18,
   },
 });
 
