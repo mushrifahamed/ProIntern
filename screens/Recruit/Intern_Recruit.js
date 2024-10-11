@@ -13,7 +13,12 @@ import {
 import * as ImagePicker from "expo-image-picker";
 import { Ionicons } from "@expo/vector-icons";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { getFirestore, collection, addDoc } from "firebase/firestore";
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  Timestamp,
+} from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import { app } from "../../firebase"; // Import Firebase configuration
 import { SelectList } from "react-native-dropdown-select-list"; // Import SelectList
