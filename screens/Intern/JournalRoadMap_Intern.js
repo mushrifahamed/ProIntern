@@ -19,7 +19,7 @@ const JournalRoadMap = () => {
   const [startDate, setStartDate] = useState(null);
   const [duration, setDuration] = useState(null);
   const [completedEntries, setCompletedEntries] = useState({});
-  const [loading, setLoading] = useState(true); // Loading state
+  const [loading, setLoading] = useState(true);
   const userId = auth.currentUser ? auth.currentUser.uid : null;
   const navigation = useNavigation();
 
@@ -46,11 +46,11 @@ const JournalRoadMap = () => {
         } catch (error) {
           Alert.alert('Error', 'Could not fetch journal data. Please try again later.');
         } finally {
-          setLoading(false); // Stop loading when done
+          setLoading(false);
         }
       } else {
         Alert.alert('Error', 'You must be logged in to view your journal roadmap.');
-        setLoading(false); // Stop loading if not logged in
+        setLoading(false);
       }
     };
 
@@ -65,11 +65,11 @@ const JournalRoadMap = () => {
         setCompletedEntries(fetchedEntries);
 
         const generatedDays = Array.from({ length: totalDays }, (_, i) => {
-          const dayNumber = i + 1; // dayNumber will be 1, 2, 3... totalDays
+          const dayNumber = i + 1;
           return {
             day: dayNumber,
             title: `Day ${dayNumber}`,
-            completed: Object.keys(fetchedEntries).includes(formatDate(new Date(startDate.getTime() + (i * 24 * 60 * 60 * 1000)))), // Check if day is completed
+            completed: Object.keys(fetchedEntries).includes(formatDate(new Date(startDate.getTime() + (i * 24 * 60 * 60 * 1000)))),
           };
         });
 
@@ -90,7 +90,7 @@ const JournalRoadMap = () => {
       const entries = querySnapshot.docs.reduce((acc, doc) => {
         const data = doc.data();
         const date = formatDate(new Date(data.date));
-        acc[date] = data; // Store entries by date
+        acc[date] = data;
         return acc;
       }, {});
 
@@ -108,10 +108,8 @@ const JournalRoadMap = () => {
       journalDate.setDate(journalDate.getDate() + (day - 1));
       const formattedDate = formatDate(journalDate);
 
-      // Check if there's an entry for that date in completedEntries
       const existingEntry = completedEntries[formattedDate];
 
-      // Directly navigate to the entry creation screen with the entry data if it exists
       navigation.navigate('JournalCreate_Intern', { date: formattedDate, entry: existingEntry || null });
     },
     [startDate, completedEntries, navigation]
@@ -121,19 +119,16 @@ const JournalRoadMap = () => {
     const entryData = {
       userId: userId,
       date: date,
-      // Other necessary data
     };
 
     try {
       await setDoc(doc(collection(db, 'journalInternships'), `${userId}_${date}`), entryData);
 
-      // Update local state immediately
       setCompletedEntries(prevEntries => ({
         ...prevEntries,
-        [date]: entryData // Add new entry to local state
+        [date]: entryData
       }));
 
-      // Navigate to the new entry
       navigation.navigate('JournalCreate_Intern', { date });
     } catch (error) {
       Alert.alert('Error', 'Could not create the journal entry. Please try again later.');
@@ -141,13 +136,13 @@ const JournalRoadMap = () => {
   };
 
   const handleRefresh = async () => {
-    setLoading(true); // Start loading
+    setLoading(true);
     const fetchedEntries = await fetchJournalEntries();
     setCompletedEntries(fetchedEntries);
-    setLoading(false); // Stop loading
+    setLoading(false);
   };
 
-  const svgHeight = 200 * days.length;
+  const svgHeight = 200 * days.length + 100; // Add extra space for the end indicator
 
   const generatePath = () => {
     let path = `M ${width * 0.1} 0`;
@@ -157,6 +152,9 @@ const JournalRoadMap = () => {
       const x2 = index % 2 === 0 ? width * 0.1 : width * 0.9;
       path += ` C ${x1} ${y + 100}, ${x2} ${y + 100}, ${x2} ${y + 200}`;
     });
+    // Add a final curve to the center for the end indicator
+    const finalY = days.length * 200;
+    path += ` C ${width * 0.5} ${finalY + 50}, ${width * 0.5} ${finalY + 50}, ${width * 0.5} ${finalY + 100}`;
     return path;
   };
 
@@ -164,7 +162,7 @@ const JournalRoadMap = () => {
     <SafeAreaView style={styles.container}>
       <LinearGradient colors={['#1a2a6c', '#4e54c8', '#8f94fb']} style={styles.gradient}>
         <Text style={styles.header}>My Journal Roadmap</Text>
-        {loading ? ( // Show loading indicator
+        {loading ? (
           <ActivityIndicator size="large" color="#fff" />
         ) : (
           <ScrollView contentContainerStyle={styles.scrollContainer}>
@@ -199,8 +197,18 @@ const JournalRoadMap = () => {
                   </TouchableOpacity>
                 );
               })}
-              {/* Refresh button */}
-              <TouchableOpacity onPress={handleRefresh} style={styles.refreshButton}>
+              {/* End indicator */}
+              <View style={[styles.endIndicator, { top: svgHeight - 50 }]}>
+                <LinearGradient
+                  colors={['rgba(255,255,255,0.9)', 'rgba(255,255,255,0.7)']}
+                  style={styles.endGradient}
+                >
+                  <Ionicons name="flag" size={30} color="#4CAF50" />
+                  <Text style={styles.endText}>Journey Complete!</Text>
+                </LinearGradient>
+              </View>
+              {/* Refresh button - Moved below the end indicator */}
+              <TouchableOpacity onPress={handleRefresh} style={[styles.refreshButton, { top: svgHeight + 20 }]}>
                 <Text style={styles.refreshButtonText}>Refresh</Text>
               </TouchableOpacity>
             </View>
@@ -252,7 +260,7 @@ const styles = StyleSheet.create({
     marginTop: 5,
   },
   refreshButton: {
-    marginTop: 20,
+    position: 'absolute',
     padding: 10,
     backgroundColor: '#4CAF50',
     borderRadius: 5,
@@ -260,6 +268,21 @@ const styles = StyleSheet.create({
   refreshButtonText: {
     color: '#fff',
     fontSize: 16,
+  },
+  endIndicator: {
+    position: 'absolute',
+    left: width / 2 - 75, // Center the indicator
+    alignItems: 'center',
+  },
+  endGradient: {
+    borderRadius: 10,
+    alignItems: 'center',
+    width: 150,
+  },
+  endText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#4CAF50',
   },
 });
 
