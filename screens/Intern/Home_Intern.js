@@ -15,7 +15,7 @@ import {
   Easing,
   TouchableWithoutFeedback,
   RefreshControl,
-  ActivityIndicator, // Add loading indicator
+  ActivityIndicator,
 } from 'react-native';
 import { Feather, Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
@@ -33,7 +33,7 @@ const Home_Intern = () => {
   const [data, setData] = useState([]); // Fetched internships
   const [recommendations, setRecommendations] = useState([]); // Recommended internships
   const [loading, setLoading] = useState(true); // Unified loading state
-  const [refreshing, setRefreshing] = useState(false);
+  const [refreshing, setRefreshing] = useState(false); // Refresh state
   const [user, setUser] = useState(null); // For storing user info
   const [preferences, setPreferences] = useState([]); // User preferences
   const [selectedInternship, setSelectedInternship] = useState(null);
@@ -85,15 +85,15 @@ const Home_Intern = () => {
     }
   };
 
-  // Trigger data fetching when the component mounts
+  // Trigger data fetching when the component mounts (fetch once)
   useEffect(() => {
-    fetchData();
+    fetchData(); // Fetch data on component mount
   }, []);
 
   // Pull-to-refresh functionality
   const onRefresh = () => {
-    setRefreshing(true);
-    fetchData().finally(() => setRefreshing(false));
+    setRefreshing(true); // Start refreshing state
+    fetchData().finally(() => setRefreshing(false)); // Fetch data again and stop refreshing state
   };
 
   // Filter internships based on search query
@@ -170,6 +170,13 @@ const Home_Intern = () => {
         easing: Easing.ease,
         useNativeDriver: true,
       }).start();
+    }
+  };
+
+  // Handle tapping outside the menu to close
+  const handleOutsideTap = () => {
+    if (isMenuVisible) {
+      toggleMenu();
     }
   };
 

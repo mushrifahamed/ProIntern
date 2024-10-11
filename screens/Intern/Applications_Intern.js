@@ -13,15 +13,15 @@ import {
   RefreshControl,
   Modal,
   ScrollView,
-  Alert
+  Alert,
+  Linking
 } from 'react-native';
 import { Feather, Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import { getFirestore, collection, query, where, getDocs, doc, getDoc, limit, startAfter } from 'firebase/firestore'; 
+import { getFirestore, collection, query, where, getDocs, doc, getDoc } from 'firebase/firestore'; 
 import { getAuth } from 'firebase/auth';
 import { app } from '../../firebase';
 import * as FileSystem from 'expo-file-system';
-import * as Sharing from 'expo-sharing';
 import NavBar_Intern from '../../components/NavBar_Intern';
 import colors from "../../assets/colors";  // Importing the colors from the colors.js file
 
@@ -39,57 +39,54 @@ const Applications_Intern = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedApplication, setSelectedApplication] = useState(null);
   const [cvDownloading, setCvDownloading] = useState(false);
-  const [lastVisible, setLastVisible] = useState(null); // For pagination
-  const [isFetchingMore, setIsFetchingMore] = useState(false); // For loading more applications
+  const [showMore, setShowMore] = useState(false); // State for "Show more" functionality
+  const [internDetails, setInternDetails] = useState(null); // Intern details including profile pic and CV
   const navigation = useNavigation();
 
   const user = useContext(UserProfileContext);
 
-  // Fetch the applications
-  const fetchApplications = async (initialLoad = true) => {
+  // Fetch the applications and intern details
+  const fetchApplications = async () => {
     const currentUser = auth.currentUser;
     if (currentUser) {
       try {
-        setLoading(initialLoad);
-        const applicationsQuery = query(
-          collection(db, 'applications'),
-          where('internId', '==', currentUser.uid),
-          limit(10), // Load only 10 applications at a time for pagination
-          initialLoad && lastVisible ? startAfter(lastVisible) : undefined // Start after last fetched document
-        );
-        const applicationsSnapshot = await getDocs(applicationsQuery);
+        setLoading(true);
+        
+        // Fetch intern details (profile pic, CV) from Interns collection
+        const internDocRef = doc(db, 'Interns', currentUser.uid);
+        const internDoc = await getDoc(internDocRef);
 
-        const fetchedApplications = await Promise.all(applicationsSnapshot.docs.map(async (docSnap) => {
-          const application = docSnap.data();
-          return {
-            id: docSnap.id,
-            ...application,
-            jobTitle: application.jobTitle,
-            jobType: application.jobType,
-            logo: application.logo,
-            status: application.status,
-            cvUrl: application.cvUrl // Assuming CV URL is stored in the application collection
-          };
-        }));
-
-        // Update pagination state
-        setLastVisible(applicationsSnapshot.docs[applicationsSnapshot.docs.length - 1]);
-
-        if (initialLoad) {
-          setApplications([...applications, ...fetchedApplications]); // Append new applications
+        if (internDoc.exists()) {
+          console.log("Fetched intern details: ", internDoc.data());
+          setInternDetails(internDoc.data());
         } else {
-          setApplications(fetchedApplications); // For refreshing, reset the list
+          console.log("No such intern document!");
         }
 
+        // Fetch applications related to the current user
+        const applicationsQuery = query(
+          collection(db, 'applications'),
+          where('internId', '==', currentUser.uid)
+        );
+
+        const applicationsSnapshot = await getDocs(applicationsQuery);
+        const fetchedApplications = applicationsSnapshot.docs.map(docSnap => ({
+          id: docSnap.id,
+          ...docSnap.data(),
+        }));
+
+        console.log("Fetched applications: ", fetchedApplications);  // Debugging log
+
+        setApplications(fetchedApplications);
       } catch (error) {
-        console.error('Error fetching applications:', error);
+        console.error('Error fetching applications or intern details:', error);
       } finally {
-        setLoading(false);
-        setIsFetchingMore(false);
+        setLoading(false); // Stop loading after data is fetched
       }
     }
   };
 
+  // Only fetch data when component mounts (fetch once)
   useEffect(() => {
     fetchApplications();
   }, []);
@@ -97,16 +94,8 @@ const Applications_Intern = () => {
   // Handle pull-to-refresh
   const onRefresh = async () => {
     setRefreshing(true);
-    await fetchApplications(false); // Pass false to refresh the list
+    await fetchApplications(); // Re-fetch data on refresh
     setRefreshing(false);
-  };
-
-  // Load more applications when user scrolls
-  const loadMoreApplications = async () => {
-    if (!isFetchingMore) {
-      setIsFetchingMore(true);
-      await fetchApplications();
-    }
   };
 
   const getStatusStyles = (status) => {
@@ -121,10 +110,10 @@ const Applications_Intern = () => {
           backgroundColor: colors.status.inReview.background,
           color: colors.status.inReview.text,
         };
-      case 'Rejected':
+      case 'Interview':
         return {
-          backgroundColor: colors.status.rejected.background,
-          color: colors.status.rejected.text,
+          backgroundColor: colors.status.interview.background,
+          color: colors.status.interview.text,
         };
       case 'Applied':
       default:
@@ -135,9 +124,32 @@ const Applications_Intern = () => {
     }
   };
 
-  const openModal = (application) => {
-    setSelectedApplication(application);
-    setModalVisible(true);
+  const openModal = async (application) => {
+    console.log("Opening modal for application: ", application); // Debugging log for modal
+
+    // Fetch internship description using internshipId from the 'internships' collection
+    try {
+      const internshipDocRef = doc(db, 'internships', application.internshipId);
+      const internshipDoc = await getDoc(internshipDocRef);
+
+      if (internshipDoc.exists()) {
+        const internshipData = internshipDoc.data();
+        console.log("Fetched internship details: ", internshipData);
+
+        // Set application data including internship details
+        setSelectedApplication({
+          ...application,
+          internshipDescription: internshipData.description,
+        });
+      } else {
+        console.log("No such internship document!");
+        setSelectedApplication(application); // If no internship description, just use the original application data
+      }
+
+      setModalVisible(true);
+    } catch (error) {
+      console.error("Error fetching internship details: ", error);
+    }
   };
 
   const closeModal = () => {
@@ -146,12 +158,14 @@ const Applications_Intern = () => {
   };
 
   const downloadCV = async (cvUrl) => {
+    console.log("Downloading CV from URL: ", cvUrl);  // Debugging log for CV download
     setCvDownloading(true);
+    Linking.openURL(cvUrl);
     try {
       const downloadUri = FileSystem.documentDirectory + 'cv.pdf';
       const downloadResumable = FileSystem.createDownloadResumable(cvUrl, downloadUri);
       const { uri } = await downloadResumable.downloadAsync();
-      await Sharing.shareAsync(uri);
+      console.log("CV downloaded to: ", uri); // Log the downloaded file's location
     } catch (error) {
       Alert.alert('Error', 'Failed to download the CV.');
     } finally {
@@ -159,10 +173,11 @@ const Applications_Intern = () => {
     }
   };
 
+  // Render the details modal, including the dynamic status bar, company information, and profile picture
   const renderApplicationDetailsModal = () => {
     if (!selectedApplication) return null;
 
-    const statusOrder = ['Applied', 'In Review', 'Accepted'];
+    const statusOrder = ['Applied', 'In Review', 'Accepted']; // Define the order for the status
 
     return (
       <Modal
@@ -172,11 +187,10 @@ const Applications_Intern = () => {
         onRequestClose={closeModal}
       >
         <View style={styles.modalHeader}>
-          <Feather name="arrow-left" size={24} color="white" onPress={closeModal} />
-          <Image source={{ uri: selectedApplication.logo }} style={styles.modalLogo} />
+          <Feather name="arrow-left" size={24} color="#FFFFFF" style={styles.backIcon} onPress={closeModal} />
         </View>
 
-        {/* Progress Bar */}
+        {/* Dynamic Status Bar */}
         <View style={styles.progressBarContainer}>
           {statusOrder.map((status, index) => (
             <View key={index} style={styles.statusStep}>
@@ -190,9 +204,22 @@ const Applications_Intern = () => {
             </View>
           ))}
         </View>
+
         <View style={styles.progressBarLineContainer}>
-          <View style={[styles.progressBarLine, { backgroundColor: '#0077B6', flex: 1 }]} />
-          <View style={[styles.progressBarLine, { backgroundColor: '#ccc', flex: 1 }]} />
+          {statusOrder.map((status, index) => (
+            <View
+              key={index}
+              style={[
+                styles.progressBarLine,
+                { backgroundColor: statusOrder.indexOf(selectedApplication.status) > index ? '#0077B6' : '#ccc' },
+              ]}
+            />
+          ))}
+        </View>
+
+        {/* Company Logo */}
+        <View style={styles.logoContainer}>
+          <Image source={{ uri: selectedApplication.logo }} style={styles.modalLogo} />
         </View>
 
         <ScrollView style={styles.modalContent}>
@@ -200,22 +227,39 @@ const Applications_Intern = () => {
           <View style={styles.detailsSection}>
             <Text style={styles.jobTitle}>{selectedApplication.jobTitle}</Text>
             <Text style={styles.jobType}>{selectedApplication.jobType}</Text>
+
+            {/* Description Section */}
+            <Text style={styles.jobDescription}>
+              {showMore
+                ? selectedApplication.internshipDescription || "No description available." // Fallback to "No description available"
+                : (selectedApplication.internshipDescription || "No description available").slice(0, 200) + '...'}
+            </Text>
+            <Text
+              style={styles.showMoreText}
+              onPress={() => setShowMore(!showMore)}
+            >
+              {showMore ? "Show less" : "Show more"}
+            </Text>
           </View>
 
           {/* CV Section */}
-          <View style={styles.detailsSection}>
-            <Text style={styles.sectionTitle}>CV</Text>
-            <View style={styles.cvRow}>
-              <Image
-                source={{ uri: 'https://image-url-for-pdf-icon.com' }}
-                style={styles.cvIcon}
-              />
-              <Text style={styles.cvName}>CV.pdf</Text>
-              <TouchableOpacity onPress={() => downloadCV(selectedApplication.cvUrl)}>
-                {cvDownloading ? <ActivityIndicator /> : <Feather name="download" size={24} color="#0077B6" />}
-              </TouchableOpacity>
+          {internDetails?.cvUrl ? (
+            <View style={styles.detailsSection}>
+              <Text style={styles.sectionTitle}>CV</Text>
+              <View style={styles.cvRow}>
+                <Image
+                  source={{ uri: 'https://example.com/pdf-icon.png' }} // Replace with actual PDF icon URL
+                  style={styles.cvIcon}
+                />
+                <Text style={styles.cvName}>CV.pdf</Text>
+                <TouchableOpacity onPress={() => downloadCV(internDetails.cvUrl)}>
+                  {cvDownloading ? <ActivityIndicator /> : <Feather name="download" size={24} color="#0077B6" />}
+                </TouchableOpacity>
+              </View>
             </View>
-          </View>
+          ) : (
+            <Text style={styles.noCvText}>No CV uploaded.</Text>
+          )}
         </ScrollView>
       </Modal>
     );
@@ -223,6 +267,8 @@ const Applications_Intern = () => {
 
   const renderItem = ({ item }) => {
     const statusStyles = getStatusStyles(item.status);
+
+    console.log("Rendering application item: ", item); // Debugging log for item rendering
 
     return (
       <TouchableOpacity onPress={() => openModal(item)} style={styles.itemContainer}>
@@ -239,7 +285,7 @@ const Applications_Intern = () => {
     );
   };
 
-  if (loading && applications.length === 0) {
+  if (loading) {
     return (
       <View style={styles.loaderContainer}>
         <ActivityIndicator size="large" color={colors.primary} />
@@ -254,9 +300,9 @@ const Applications_Intern = () => {
       {/* Header */}
       <View style={styles.header}>
         <Feather name="arrow-left" size={24} color="white" style={styles.backIcon} onPress={() => navigation.goBack()} />
-        {user && (
+        {internDetails?.pic && (
           <TouchableOpacity onPress={() => navigation.navigate('Profile_Intern')}>
-            <Image source={{ uri: user.pic }} style={styles.profilePic} />
+            <Image source={{ uri: internDetails.pic }} style={styles.profilePic} />
           </TouchableOpacity>
         )}
       </View>
@@ -289,11 +335,6 @@ const Applications_Intern = () => {
             onRefresh={onRefresh}
             colors={[colors.primary]}
           />
-        }
-        onEndReached={loadMoreApplications} // Load more when reaching end of list
-        onEndReachedThreshold={0.5}
-        ListFooterComponent={
-          isFetchingMore ? <ActivityIndicator size="small" color={colors.primary} /> : null
         }
       />
 
@@ -440,16 +481,21 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     padding: 15,
-    backgroundColor: '#0077B6',
+    backgroundColor: '#FFFFFF',
   },
   modalLogo: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    marginLeft: 'auto',
+    width: 100,  // Increased size for better visibility
+    height: 100,  // Increased size for better visibility
+    borderRadius: 10,
+    alignSelf: 'center',
+    marginVertical: 20,  // Added margin for better spacing
   },
   modalContent: {
     padding: 20,
+  },
+  logoContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   progressBarContainer: {
     flexDirection: 'row',
@@ -479,6 +525,8 @@ const styles = StyleSheet.create({
   },
   progressBarLine: {
     height: 4,
+    flex: 1,
+    backgroundColor: '#ccc',
     borderRadius: 2,
   },
   detailsSection: {
@@ -493,6 +541,11 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#666',
     marginTop: 5,
+  },
+  jobDescription: {
+    fontSize: 14,
+    color: '#666',
+    marginTop: 10,
   },
   sectionTitle: {
     fontSize: 16,
@@ -513,6 +566,18 @@ const styles = StyleSheet.create({
     marginLeft: 10,
     fontSize: 14,
     color: '#333',
+  },
+  showMoreText: {
+    fontSize: 14,
+    color: '#0077B6',
+    marginTop: 10,
+    fontWeight: 'bold',
+  },
+  noCvText: {
+    textAlign: 'center',
+    color: '#999',
+    fontSize: 14,
+    marginVertical: 10,
   },
 });
 
