@@ -52,7 +52,7 @@ export default function PreferencesScreen() {
         preferences: preferences,
       });
       // Navigate to login screen after saving
-      navigation.replace("Login_Intern");
+      navigation.navigate("Login_Intern");
     } catch (error) {
       console.error("Error saving preferences:", error);
     }
