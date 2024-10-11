@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -8,22 +8,31 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
   Alert,
-} from 'react-native';
-import { useFonts } from 'expo-font';
-import { db } from '../../firebase';
-import { collection, query, where, getDocs, Timestamp } from 'firebase/firestore';
-import { Calendar } from 'react-native-calendars';
-import { Ionicons } from '@expo/vector-icons';
-import { getAuth } from 'firebase/auth';
+} from "react-native";
+import { useFonts } from "expo-font";
+import { db } from "../../firebase";
+import {
+  collection,
+  query,
+  where,
+  getDocs,
+  Timestamp,
+} from "firebase/firestore";
+import { Calendar } from "react-native-calendars";
+import { Ionicons } from "@expo/vector-icons";
+import { getAuth } from "firebase/auth";
+import NavBar_Intern from "../../components/NavBar_Intern";
 
 export default function ListTask({ navigation }) {
   const [tasks, setTasks] = useState([]);
-  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
+  const [selectedDate, setSelectedDate] = useState(
+    new Date().toISOString().split("T")[0]
+  );
   const auth = getAuth();
   const currentUser = auth.currentUser;
 
   const [fontsLoaded] = useFonts({
-    'Poppins-Regular': require('../../assets/fonts/Poppins-Regular.ttf'),
+    "Poppins-Regular": require("../../assets/fonts/Poppins-Regular.ttf"),
   });
 
   useEffect(() => {
@@ -39,22 +48,24 @@ export default function ListTask({ navigation }) {
       endOfDay.setHours(23, 59, 59, 999);
 
       const taskQuery = query(
-        collection(db, 'tasks'),
-        where('userId', '==', userId),
-        where('dueDate', '>=', Timestamp.fromDate(startOfDay)),
-        where('dueDate', '<=', Timestamp.fromDate(endOfDay))
+        collection(db, "tasks"),
+        where("userId", "==", userId),
+        where("dueDate", ">=", Timestamp.fromDate(startOfDay)),
+        where("dueDate", "<=", Timestamp.fromDate(endOfDay))
       );
 
       const querySnapshot = await getDocs(taskQuery);
-      const tasksData = querySnapshot.docs.map(doc => ({
+      const tasksData = querySnapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
       }));
 
-      setTasks(tasksData.sort((a, b) => a.dueDate.toDate() - b.dueDate.toDate()));
+      setTasks(
+        tasksData.sort((a, b) => a.dueDate.toDate() - b.dueDate.toDate())
+      );
     } catch (error) {
-      console.error('Error fetching tasks: ', error);
-      Alert.alert('Error', 'Could not fetch tasks. Please try again.');
+      console.error("Error fetching tasks: ", error);
+      Alert.alert("Error", "Could not fetch tasks. Please try again.");
     }
   };
 
@@ -62,11 +73,12 @@ export default function ListTask({ navigation }) {
     <View style={styles.taskContainer}>
       <Text style={styles.taskTitle}>{item.title}</Text>
       <Text style={styles.taskDetails}>
-        Due Date: {item.dueDate ? item.dueDate.toDate().toLocaleString() : 'No Date'}
+        Due Date:{" "}
+        {item.dueDate ? item.dueDate.toDate().toLocaleString() : "No Date"}
       </Text>
       <TouchableOpacity
         style={styles.taskButton}
-        onPress={() => navigation.navigate('ViewTask', { taskId: item.id })}
+        onPress={() => navigation.navigate("ViewTask", { taskId: item.id })}
       >
         <Text style={styles.taskButtonText}>Details</Text>
       </TouchableOpacity>
@@ -93,20 +105,24 @@ export default function ListTask({ navigation }) {
             setSelectedDate(day.dateString);
           }}
           markedDates={{
-            [selectedDate]: { selected: true, marked: true, selectedColor: '#034694' },
+            [selectedDate]: {
+              selected: true,
+              marked: true,
+              selectedColor: "#034694",
+            },
           }}
           theme={{
-            backgroundColor: '#fff',
-            calendarBackground: '#fff',
-            textSectionTitleColor: '#1C274C',
-            textMonthFontWeight: 'bold',
-            selectedDayBackgroundColor: '#034694',
-            selectedDayTextColor: '#ffffff',
-            todayTextColor: '#034694',
-            dayTextColor: '#1C274C',
-            textDisabledColor: '#d9e1e8',
-            dotColor: '#034694',
-            arrowColor: '#034694',
+            backgroundColor: "#fff",
+            calendarBackground: "#fff",
+            textSectionTitleColor: "#1C274C",
+            textMonthFontWeight: "bold",
+            selectedDayBackgroundColor: "#034694",
+            selectedDayTextColor: "#ffffff",
+            todayTextColor: "#034694",
+            dayTextColor: "#1C274C",
+            textDisabledColor: "#d9e1e8",
+            dotColor: "#034694",
+            arrowColor: "#034694",
           }}
         />
         <Text style={styles.title}>Tasks for {selectedDate}</Text>
@@ -120,9 +136,13 @@ export default function ListTask({ navigation }) {
             contentContainerStyle={styles.list}
           />
         )}
-        <TouchableOpacity style={styles.addButton} onPress={() => navigation.navigate('AddTask')}>
+        <TouchableOpacity
+          style={styles.addButton}
+          onPress={() => navigation.navigate("AddTask")}
+        >
           <Ionicons name="add" size={24} color="#fff" />
         </TouchableOpacity>
+        <NavBar_Intern />
       </View>
     </TouchableWithoutFeedback>
   );
@@ -132,21 +152,21 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: '#f7f9fc',
+    backgroundColor: "#f7f9fc",
   },
   title: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginVertical: 20,
-    color: '#1C274C',
-    fontFamily: 'Poppins-Regular',
+    color: "#1C274C",
+    fontFamily: "Poppins-Regular",
   },
   emptyMessage: {
-    textAlign: 'center',
-    color: '#666',
+    textAlign: "center",
+    color: "#666",
     fontSize: 16,
     marginVertical: 20,
-    fontFamily: 'Poppins-Regular',
+    fontFamily: "Poppins-Regular",
   },
   list: {
     paddingBottom: 100,
@@ -154,8 +174,8 @@ const styles = StyleSheet.create({
   taskContainer: {
     padding: 15,
     borderRadius: 8,
-    backgroundColor: '#fff',
-    shadowColor: '#000',
+    backgroundColor: "#fff",
+    shadowColor: "#000",
     shadowOpacity: 0.1,
     shadowOffset: {
       width: 0,
@@ -166,39 +186,39 @@ const styles = StyleSheet.create({
   },
   taskTitle: {
     fontSize: 18,
-    fontWeight: 'bold',
-    color: '#1C274C',
-    fontFamily: 'Poppins-Regular',
+    fontWeight: "bold",
+    color: "#1C274C",
+    fontFamily: "Poppins-Regular",
   },
   taskDetails: {
     fontSize: 14,
-    color: '#666',
+    color: "#666",
     marginVertical: 5,
-    fontFamily: 'Poppins-Regular',
+    fontFamily: "Poppins-Regular",
   },
   taskButton: {
     marginTop: 10,
     padding: 10,
-    backgroundColor: '#034694',
+    backgroundColor: "#034694",
     borderRadius: 5,
-    alignItems: 'center',
+    alignItems: "center",
   },
   taskButtonText: {
-    color: '#fff',
-    fontWeight: 'bold',
-    fontFamily: 'Poppins-Regular',
+    color: "#fff",
+    fontWeight: "bold",
+    fontFamily: "Poppins-Regular",
   },
   addButton: {
-    position: 'absolute',
-    bottom: 30,
+    position: "absolute",
+    bottom: 100,
     right: 30,
     width: 60,
     height: 60,
-    backgroundColor: '#034694',
+    backgroundColor: "#034694",
     borderRadius: 30,
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#000',
+    justifyContent: "center",
+    alignItems: "center",
+    shadowColor: "#000",
     shadowOpacity: 0.1,
     shadowOffset: {
       width: 0,
@@ -209,8 +229,8 @@ const styles = StyleSheet.create({
   backIcon: {
     padding: 10,
     borderRadius: 10,
-    backgroundColor: '#034694',
-    position: 'absolute',
+    backgroundColor: "#034694",
+    position: "absolute",
     top: 40,
     left: 20,
     zIndex: 1,

@@ -164,7 +164,10 @@ export default function App() {
         <Stack.Screen name="Home_Intern" component={Home_Intern} />
         <Stack.Screen name="Profile_Intern" component={Profile_Intern} />
         <Stack.Screen name="Apply_Intern" component={Apply_Intern} />
-        <Stack.Screen name="ChangePreferences_Intern" component={ChangePreferences_Intern} />  
+        <Stack.Screen
+          name="ChangePreferences_Intern"
+          component={ChangePreferences_Intern}
+        />
         <Stack.Screen
           name="Applications_Intern"
           component={Applications_Intern}
@@ -182,14 +185,14 @@ export default function App() {
         <Stack.Screen
           name="JournalHome_Intern"
           component={JournalHome_Intern}
-          options={{
-            headerShown: true,
-            title: "Journal Home",
-            headerTitleStyle: {
-              color: "#023E8A", // Change the title color
-              fontSize: 20, // You can adjust the font size as needed
-            },
-          }}
+          // options={{
+          //   headerShown: true,
+          //   title: "Journal Home",
+          //   headerTitleStyle: {
+          //     color: "#023E8A", // Change the title color
+          //     fontSize: 20, // You can adjust the font size as needed
+          //   },
+          // }}
         />
 
         <Stack.Screen

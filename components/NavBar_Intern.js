@@ -21,7 +21,8 @@ const CustomNavBar = () => {
 
   useEffect(() => {
     if (isFocused) {
-      const currentRoute = navigation.getState().routes[navigation.getState().index].name;
+      const currentRoute =
+        navigation.getState().routes[navigation.getState().index].name;
       setSelectedTab(currentRoute); // Update the selected tab to match the current screen
     }
   }, [isFocused, navigation]);
@@ -76,14 +77,14 @@ const CustomNavBar = () => {
         onPress={() => handleNavigation("ListTask")}
         style={[
           styles.navItem,
-          selectedTab === "Tasks" && styles.selectedTab,
+          selectedTab === "ListTask" && styles.selectedTab,
         ]}
       >
         <TasksIcon size={28} />
         <Text
           style={[
             styles.customNavItem,
-            selectedTab === "Tasks" && styles.selectedText,
+            selectedTab === "ListTask" && styles.selectedText,
           ]}
         >
           Tasks
