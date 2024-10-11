@@ -23,10 +23,10 @@ import Interview_Recruit from "./screens/Recruit/Interview_Recruit";
 import ApplicationReview_Recruit from "./screens/Recruit/ApplicationReview_Recruit";
 import ForgotPass_Recruit from "./screens/Recruit/ForgotPass_Recruit";
 import InterviewUpdate_Recruit from "./screens/Recruit/InterviewUpdate_Recruit";
-import AddTask from './screens/Intern/AddTask_intern';
-import ListTask from './screens/Intern/ListTask_intern';
-import ViewTask from './screens/Intern/ViewTask_intern';
-import UpdateTask from './screens/Intern/UpdateTask_intern';
+import AddTask from "./screens/Intern/AddTask_intern";
+import ListTask from "./screens/Intern/ListTask_intern";
+import ViewTask from "./screens/Intern/ViewTask_intern";
+import UpdateTask from "./screens/Intern/UpdateTask_intern";
 
 // Intern screens
 import Register_Intern from "./screens/Intern/Register_Intern";
@@ -42,7 +42,7 @@ import Apply_Intern from "./screens/Intern/Apply_Intern";
 import Applications_Intern from "./screens/Intern/Applications_Intern";
 import JournalPage_Intern from "./screens/Intern/JournalPage_Intern";
 import JournalCreate_Intern from "./screens/Intern/JournalCreate_Intern";
-import JournalHome_Intern from  "./screens/Intern/JournalHome_Intern";
+import JournalHome_Intern from "./screens/Intern/JournalHome_Intern";
 import JournalRoadMap_Intern from "./screens/Intern/JournalRoadMap_Intern";
 import ForgotPass_intern from "./screens/Intern/ForgotPass_intern";
 
@@ -90,7 +90,7 @@ export default function App() {
     <NavigationContainer>
       <Stack.Navigator
         screenOptions={{ headerShown: false }}
-        initialRouteName="LaunchScreen"
+        initialRouteName="Onboarding1"
       >
         {/* Onboarding screens */}
         <Stack.Screen name="LaunchScreen" component={LaunchScreen} />
@@ -177,61 +177,58 @@ export default function App() {
         <Stack.Screen name="ListTask" component={ListTask} />
         <Stack.Screen name="ViewTask" component={ViewTask} />
         <Stack.Screen name="UpdateTask" component={UpdateTask} />
-        <Stack.Screen 
-        name="JournalHome_Intern" 
-        component={JournalHome_Intern}  
-        options={{ 
-          headerShown: true,
-          title: 'Journal Home',
-          headerTitleStyle: {
-            color: '#023E8A', // Change the title color
-            fontSize: 20, // You can adjust the font size as needed
-          }
-        }} 
-      />
-
-          <Stack.Screen 
-          name="JournalPage_Intern" 
-          component={JournalPage_Intern} 
-          options={{ 
-            headerShown: true, 
-            title: 'Journal Home', // Set your custom header title here
-            headerTitleStyle: { 
-              color: '#023E8A', // Set the title color here
-              fontSize: 22, // Optional: adjust the font size
+        <Stack.Screen
+          name="JournalHome_Intern"
+          component={JournalHome_Intern}
+          options={{
+            headerShown: true,
+            title: "Journal Home",
+            headerTitleStyle: {
+              color: "#023E8A", // Change the title color
+              fontSize: 20, // You can adjust the font size as needed
             },
-            headerTintColor: '#023E8A', // Color for the back button and any icons
-          }} 
+          }}
         />
 
+        <Stack.Screen
+          name="JournalPage_Intern"
+          component={JournalPage_Intern}
+          options={{
+            headerShown: true,
+            title: "Journal Home", // Set your custom header title here
+            headerTitleStyle: {
+              color: "#023E8A", // Set the title color here
+              fontSize: 22, // Optional: adjust the font size
+            },
+            headerTintColor: "#023E8A", // Color for the back button and any icons
+          }}
+        />
 
-      <Stack.Screen 
-        name="JournalCreate_Intern" 
-        component={JournalCreate_Intern}  
-        options={{ 
-          headerShown: true,
-          title: 'Create Journal',
-          headerTitleStyle: {
-            color: '#023E8A', // Change the title color
-            fontSize: 20, // You can adjust the font size as needed
-          }
-        }} 
-      />
+        <Stack.Screen
+          name="JournalCreate_Intern"
+          component={JournalCreate_Intern}
+          options={{
+            headerShown: true,
+            title: "Create Journal",
+            headerTitleStyle: {
+              color: "#023E8A", // Change the title color
+              fontSize: 20, // You can adjust the font size as needed
+            },
+          }}
+        />
 
-        
-      <Stack.Screen 
-        name="JournalRoadMap_Intern" 
-        component={JournalRoadMap_Intern}  
-        options={{ 
-          headerShown: true,
-          title: 'Journal RoadMap',
-          headerTitleStyle: {
-            color: '#023E8A', // Change the title color
-            fontSize: 20, // You can adjust the font size as needed
-          }
-        }} 
-      />  
-
+        <Stack.Screen
+          name="JournalRoadMap_Intern"
+          component={JournalRoadMap_Intern}
+          options={{
+            headerShown: true,
+            title: "Journal RoadMap",
+            headerTitleStyle: {
+              color: "#023E8A", // Change the title color
+              fontSize: 20, // You can adjust the font size as needed
+            },
+          }}
+        />
 
         <Stack.Screen name="ForgotPass_intern" component={ForgotPass_intern} />
       </Stack.Navigator>
