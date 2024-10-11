@@ -157,6 +157,13 @@ const Profile_Intern = () => {
     }
   };
 
+  const handleChangePreferences = () => {
+    const currentUser = auth.currentUser;
+    if (currentUser) {
+      navigation.navigate('ChangePreferences_Intern', { userId: currentUser.uid });
+    }
+  };
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
@@ -218,7 +225,7 @@ const Profile_Intern = () => {
         </View>
 
         {/* Change Preferences */}
-        <TouchableOpacity style={styles.preferences}>
+        <TouchableOpacity style={styles.preferences} onPress={handleChangePreferences}>
           <Text style={styles.preferenceText}>Change Preferences</Text>
           <Ionicons name="chevron-forward" size={20} color={colors.primary} />
         </TouchableOpacity>

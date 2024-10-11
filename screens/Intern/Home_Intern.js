@@ -14,11 +14,12 @@ import {
   ScrollView,
   Easing,
   TouchableWithoutFeedback,
-  RefreshControl, // Import RefreshControl
+  RefreshControl,
+  ActivityIndicator, // Add loading indicator
 } from 'react-native';
-import { Feather, Ionicons } from '@expo/vector-icons'; // Icons for menu and other actions
+import { Feather, Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import { getFirestore, collection, getDocs, getDoc, doc } from 'firebase/firestore'; // Firestore functions
+import { getFirestore, collection, getDocs, getDoc, doc } from 'firebase/firestore';
 import { getAuth, signOut } from 'firebase/auth';
 import { app } from '../../firebase'; // Ensure firebase.js is correctly set up and imported
 import NavBar_Intern from '../../components/NavBar_Intern'; // Custom Navigation Bar
@@ -31,85 +32,78 @@ const Home_Intern = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [data, setData] = useState([]); // Fetched internships
   const [recommendations, setRecommendations] = useState([]); // Recommended internships
-  const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false); // State for refreshing
+  const [loading, setLoading] = useState(true); // Unified loading state
+  const [refreshing, setRefreshing] = useState(false);
   const [user, setUser] = useState(null); // For storing user info
   const [preferences, setPreferences] = useState([]); // User preferences
-
   const [selectedInternship, setSelectedInternship] = useState(null);
-  const [isModalVisible, setIsModalVisible] = useState(false); // Modal visibility state
-  const [isMenuVisible, setIsMenuVisible] = useState(false); // Menu visibility state
-  const modalTranslateY = useRef(new Animated.Value(300)).current; // Modal animation
-  const menuTranslateX = useRef(new Animated.Value(-300)).current; // Menu slide animation
-
-  const navigation = useNavigation(); // Use navigation hook for screen navigation
-
-  // Fetch current user profile picture and preferences
-  const fetchUser = async () => {
+  const [isModalVisible, setIsModalVisible] = useState(false); 
+  const [isMenuVisible, setIsMenuVisible] = useState(false);
+  
+  const modalTranslateY = useRef(new Animated.Value(300)).current;
+  const menuTranslateX = useRef(new Animated.Value(-300)).current;
+  
+  const navigation = useNavigation();
+  
+  // Fetch user data and internships once the user logs in
+  const fetchData = async () => {
     const currentUser = auth.currentUser;
     if (currentUser) {
       try {
-        const userProfileDoc = await getDoc(doc(db, 'Interns', currentUser.uid)); // Fetch user profile
+        // Fetch user profile from Firestore
+        const userProfileDoc = await getDoc(doc(db, 'Interns', currentUser.uid));
         if (userProfileDoc.exists()) {
           const userData = userProfileDoc.data();
           setUser({
             ...currentUser,
-            name: userData.fullName || currentUser.displayName, // User name or default
-            email: userData.email || currentUser.email, // User email or currentUser email
-            pic: userData.profilePicture || 'https://default-avatar-url.com/default-avatar.jpg', // Default image
+            name: userData.fullName || currentUser.displayName,
+            email: userData.email || currentUser.email,
+            pic: userData.profilePicture || 'https://default-avatar-url.com/default-avatar.jpg',
           });
-          setPreferences(userData.preferences || []); // Fetch preferences
+          setPreferences(userData.preferences || []);
+          
+          // Fetch internships after user preferences are available
+          const querySnapshot = await getDocs(collection(db, 'internships'));
+          const internships = querySnapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+          }));
+
+          setData(internships);
+
+          // Filter internships based on user preferences
+          const matchedInternships = internships.filter((internship) =>
+            preferences.some((preference) => internship.category === preference)
+          );
+          setRecommendations(matchedInternships);
         }
       } catch (error) {
-        console.error('Error fetching user data:', error);
+        console.error('Error fetching data:', error);
+      } finally {
+        setLoading(false); // End loading once data is fetched
       }
     }
   };
 
-  // Fetch internships data
-  const fetchInternships = async () => {
-    setLoading(true);
-    try {
-      const querySnapshot = await getDocs(collection(db, 'internships')); // Fetch internships
-      const internships = querySnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-
-      setData(internships); // Store all internships
-
-      // Filter internships where any user preference matches the category for recommendations
-      const matchedInternships = internships.filter((internship) =>
-        preferences.some((preference) => internship.category === preference)
-      );
-
-      setRecommendations(matchedInternships); // Store recommendations
-    } catch (error) {
-      console.error('Error fetching internships:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
+  // Trigger data fetching when the component mounts
   useEffect(() => {
-    fetchUser();
-    fetchInternships();
-  }, [preferences]);
+    fetchData();
+  }, []);
 
   // Pull-to-refresh functionality
   const onRefresh = () => {
     setRefreshing(true);
-    fetchInternships().finally(() => setRefreshing(false));
+    fetchData().finally(() => setRefreshing(false));
   };
 
-  // Filter internships based on search query (search from all available internships)
+  // Filter internships based on search query
   const handleSearch = (query) => {
     setSearchQuery(query);
   };
 
   const filteredData = data.filter((item) =>
     item.jobTitle.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    item.companyName.toLowerCase().includes(searchQuery.toLowerCase()) || // Search by company name
+    item.companyName.toLowerCase().includes(searchQuery.toLowerCase()) ||
     item.jobType.toLowerCase().includes(searchQuery.toLowerCase()) ||
     item.category.toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -146,17 +140,16 @@ const Home_Intern = () => {
   const handleApply = () => {
     if (selectedInternship) {
       navigation.navigate('Apply_Intern', { internshipId: selectedInternship.id });
-      hideModal(); // Close the modal after navigation
+      hideModal();
     }
   };
 
   const handleLogout = async () => {
     try {
       await signOut(auth);
-      navigation.navigate('Login_Intern'); // Navigate to the login screen after logging out
+      navigation.navigate('Login_Intern');
     } catch (error) {
       console.error("Error logging out: ", error);
-      Alert.alert('Error', 'Failed to log out');
     }
   };
 
@@ -180,12 +173,14 @@ const Home_Intern = () => {
     }
   };
 
-  // Close the menu when tapping outside
-  const handleOutsideTap = () => {
-    if (isMenuVisible) {
-      toggleMenu(); // Close the menu
-    }
-  };
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#0000ff" />
+        <Text>Loading...</Text>
+      </View>
+    );
+  }
 
   const renderItem = ({ item }) => (
     <TouchableOpacity style={styles.itemContainer} onPress={() => handleInternshipPress(item)}>
@@ -583,6 +578,12 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#fff',
   },
 });
 

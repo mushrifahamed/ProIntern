@@ -45,6 +45,7 @@ import JournalCreate_Intern from "./screens/Intern/JournalCreate_Intern";
 import JournalHome_Intern from  "./screens/Intern/JournalHome_Intern";
 import JournalRoadMap_Intern from "./screens/Intern/JournalRoadMap_Intern";
 import ForgotPass_intern from "./screens/Intern/ForgotPass_intern";
+import ChangePreferences_Intern from "./screens/Intern/ChangePreferences_Intern";
 
 // Onboarding and RoleSelect screens
 import LaunchScreen from "./screens/LaunchScreen";
@@ -163,6 +164,7 @@ export default function App() {
         <Stack.Screen name="Home_Intern" component={Home_Intern} />
         <Stack.Screen name="Profile_Intern" component={Profile_Intern} />
         <Stack.Screen name="Apply_Intern" component={Apply_Intern} />
+        <Stack.Screen name="ChangePreferences_Intern" component={ChangePreferences_Intern} />  
         <Stack.Screen
           name="Applications_Intern"
           component={Applications_Intern}
