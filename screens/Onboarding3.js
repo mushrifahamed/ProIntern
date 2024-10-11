@@ -16,15 +16,16 @@ export default function Onboarding3() {
     <View style={styles.container}>
       <ImageBackground
         source={{
-          uri: "https://storage.googleapis.com/a1aa/image/cdHsId6j5HbXEBmHcTwb9wevKCKa6uNVuL3F9HuElYm9UXyJA.jpg",
+          uri: "https://firebasestorage.googleapis.com/v0/b/prointern3.appspot.com/o/onboarding%2Fo3.jpg?alt=media&token=7bf435c3-ed21-4d57-9e8a-dea3d6399337",
         }}
         style={styles.backgroundImage}
         resizeMode="cover"
       >
         <View style={styles.overlay}>
-          <Text style={styles.title}>Track Your Progress</Text>
+          <Text style={styles.title}>Track Your Progress and Growth</Text>
           <Text style={styles.subtitle}>
-            Organize tasks and track progress with our task manager and journal.
+            Create a roadmap for your goals and track your progress with our
+            daily journal feature.
           </Text>
           <View style={styles.navigation}>
             <TouchableOpacity onPress={() => navigation.navigate("RoleSelect")}>

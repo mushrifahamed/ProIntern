@@ -31,15 +31,16 @@ export default function Onboarding1() {
     <View style={styles.container}>
       <ImageBackground
         source={{
-          uri: "https://storage.googleapis.com/a1aa/image/cdHsId6j5HbXEBmHcTwb9wevKCKa6uNVuL3F9HuElYm9UXyJA.jpg",
+          uri: "https://firebasestorage.googleapis.com/v0/b/prointern3.appspot.com/o/onboarding%2Fo1.jpg?alt=media&token=1438d6fa-4caa-43ed-8d53-857fe0ccd1b0",
         }}
         style={styles.backgroundImage}
         resizeMode="cover"
       >
         <View style={styles.overlay}>
-          <Text style={styles.title}>Welcome to Pro Intern</Text>
+          <Text style={styles.title}>Find Your Dream Internship</Text>
           <Text style={styles.subtitle}>
-            Find internships and grow your skills for a successful career.
+            Search and apply for internships that match your skills and
+            interests.
           </Text>
           <View style={styles.navigation}>
             <TouchableOpacity onPress={() => navigation.navigate("RoleSelect")}>

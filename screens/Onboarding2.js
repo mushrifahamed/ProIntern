@@ -16,15 +16,16 @@ export default function Onboarding1() {
     <View style={styles.container}>
       <ImageBackground
         source={{
-          uri: "https://storage.googleapis.com/a1aa/image/cdHsId6j5HbXEBmHcTwb9wevKCKa6uNVuL3F9HuElYm9UXyJA.jpg",
+          uri: "https://firebasestorage.googleapis.com/v0/b/prointern3.appspot.com/o/onboarding%2Fo2.jpg?alt=media&token=74039758-5f62-497f-b00c-54220c02b076",
         }}
         style={styles.backgroundImage}
         resizeMode="cover"
       >
         <View style={styles.overlay}>
-          <Text style={styles.title}>Grow Your Skills</Text>
+          <Text style={styles.title}>Balance Your Life with Ease</Text>
           <Text style={styles.subtitle}>
-            Search internships and manage courses to enhance your skills.
+            Manage your tasks and deadlines across academics and work with our
+            intuitive task management system.
           </Text>
           <View style={styles.navigation}>
             <TouchableOpacity onPress={() => navigation.navigate("RoleSelect")}>

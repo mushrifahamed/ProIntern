@@ -124,13 +124,29 @@ const Profile_Recruit = () => {
   };
 
   const handleLogout = async () => {
-    try {
-      await auth.signOut();
-      navigation.navigate("LoginRecruit");
-    } catch (error) {
-      console.error("Error signing out:", error);
-      Alert.alert("Error", "Failed to log out");
-    }
+    Alert.alert(
+      "Logout",
+      "Are you sure you want to logout?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Logout",
+          onPress: async () => {
+            try {
+              await auth.signOut();
+              navigation.navigate("LoginRecruit");
+            } catch (error) {
+              console.error("Error signing out:", error);
+              Alert.alert("Error", "Failed to log out");
+            }
+          },
+        },
+      ],
+      { cancelable: false }
+    );
   };
 
   if (loading || !fontsLoaded) {
