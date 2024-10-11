@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
 } from "react-native";
+import { useFocusEffect } from "@react-navigation/native";
 import { signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
 import { auth } from "../../firebase";
 
@@ -16,17 +17,18 @@ const Login_Intern = ({ navigation }) => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    // Check if the user is already logged in
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        navigation.navigate("Home_Intern"); // Navigate to Home if logged in
-      }
-    });
+  useFocusEffect(
+    React.useCallback(() => {
+      const unsubscribe = onAuthStateChanged(auth, (user) => {
+        if (user) {
+          navigation.navigate("Home_Intern"); // Navigate to Home if logged in
+        }
+      });
 
-    // Cleanup the listener when component unmounts
-    return unsubscribe;
-  }, []);
+      // Cleanup the listener when component unmounts
+      return unsubscribe;
+    }, [])
+  );
 
   const handleLogin = () => {
     setLoading(true);
