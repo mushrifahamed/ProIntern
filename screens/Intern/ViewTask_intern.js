@@ -55,7 +55,7 @@ export default function ViewTask({ route, navigation }) {
             try {
               await deleteDoc(doc(db, 'tasks', taskId));
               Alert.alert('Success', 'Task deleted successfully');
-              navigation.goBack(); // Navigate back after deletion
+              navigation.goBack();
             } catch (error) {
               console.error('Error deleting task:', error);
               Alert.alert('Error', 'Could not delete task');
@@ -115,12 +115,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: '#f7f9fc', // Softer background for improved readability
+    backgroundColor: '#f7f9fc',
   },
   closeButton: {
     alignSelf: 'flex-end',
   },
   title: {
+    fontFamily: 'Poppins-Regular',
     fontSize: 26,
     fontWeight: '600',
     marginBottom: 20,
@@ -144,11 +145,13 @@ const styles = StyleSheet.create({
     borderBottomColor: '#e0e0e0',
   },
   label: {
+    fontFamily: 'Poppins-Regular',
     fontSize: 16,
     fontWeight: '500',
     color: '#1C274C',
   },
   value: {
+    fontFamily: 'Poppins-Regular',
     fontSize: 16,
     color: '#4f4f4f',
   },
@@ -167,6 +170,7 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   switchLabel: {
+    fontFamily: 'Poppins-Regular',
     fontSize: 16,
     color: '#4f4f4f',
   },
@@ -191,6 +195,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   buttonText: {
+    fontFamily: 'Poppins-Regular',
     color: '#fff',
     fontWeight: 'bold',
   },

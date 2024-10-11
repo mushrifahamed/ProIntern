@@ -9,17 +9,22 @@ import {
   Keyboard,
   Alert,
 } from 'react-native';
-import { db } from '../../firebase'; // Adjust the import based on your file structure
+import { useFonts } from 'expo-font';
+import { db } from '../../firebase';
 import { collection, query, where, getDocs, Timestamp } from 'firebase/firestore';
 import { Calendar } from 'react-native-calendars';
 import { Ionicons } from '@expo/vector-icons';
-import { getAuth } from 'firebase/auth'; // Import getAuth to access user info
+import { getAuth } from 'firebase/auth';
 
 export default function ListTask({ navigation }) {
   const [tasks, setTasks] = useState([]);
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
-  const auth = getAuth(); // Get the current user
+  const auth = getAuth();
   const currentUser = auth.currentUser;
+
+  const [fontsLoaded] = useFonts({
+    'Poppins-Regular': require('../../assets/fonts/Poppins-Regular.ttf'),
+  });
 
   useEffect(() => {
     if (currentUser) {
@@ -35,7 +40,7 @@ export default function ListTask({ navigation }) {
 
       const taskQuery = query(
         collection(db, 'tasks'),
-        where('userId', '==', userId), // Filter by user ID
+        where('userId', '==', userId),
         where('dueDate', '>=', Timestamp.fromDate(startOfDay)),
         where('dueDate', '<=', Timestamp.fromDate(endOfDay))
       );
@@ -68,10 +73,13 @@ export default function ListTask({ navigation }) {
     </View>
   );
 
+  if (!fontsLoaded) {
+    return null;
+  }
+
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <View style={styles.container}>
-        {/* Back Button */}
         <TouchableOpacity
           style={styles.backIcon}
           onPress={() => navigation.goBack()}
@@ -79,7 +87,6 @@ export default function ListTask({ navigation }) {
           <Ionicons name="arrow-back" size={24} color="#fff" />
         </TouchableOpacity>
 
-        {/* Calendar Component */}
         <Calendar
           style={styles.calendar}
           onDayPress={(day) => {
@@ -125,19 +132,21 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: '#f7f9fc', // Light background color for better contrast
+    backgroundColor: '#f7f9fc',
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
     marginVertical: 20,
     color: '#1C274C',
+    fontFamily: 'Poppins-Regular',
   },
   emptyMessage: {
     textAlign: 'center',
     color: '#666',
     fontSize: 16,
     marginVertical: 20,
+    fontFamily: 'Poppins-Regular',
   },
   list: {
     paddingBottom: 100,
@@ -159,11 +168,13 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     color: '#1C274C',
+    fontFamily: 'Poppins-Regular',
   },
   taskDetails: {
     fontSize: 14,
     color: '#666',
     marginVertical: 5,
+    fontFamily: 'Poppins-Regular',
   },
   taskButton: {
     marginTop: 10,
@@ -175,6 +186,7 @@ const styles = StyleSheet.create({
   taskButtonText: {
     color: '#fff',
     fontWeight: 'bold',
+    fontFamily: 'Poppins-Regular',
   },
   addButton: {
     position: 'absolute',
@@ -197,13 +209,13 @@ const styles = StyleSheet.create({
   backIcon: {
     padding: 10,
     borderRadius: 10,
-    backgroundColor: '#034694', // Primary color
-    position: 'absolute', // Position it at the top left
-    top: 40, // Adjust as needed
-    left: 20, // Adjust as needed
-    zIndex: 1, // Ensure it stays above other components
+    backgroundColor: '#034694',
+    position: 'absolute',
+    top: 40,
+    left: 20,
+    zIndex: 1,
   },
   calendar: {
-    marginTop: 60, // Adjust this value to move the calendar down
+    marginTop: 60,
   },
 });

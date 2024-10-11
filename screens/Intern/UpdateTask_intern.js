@@ -46,19 +46,15 @@ export default function EditTask({ route, navigation }) {
   };
 
   const handleUpdateTask = async () => {
-    // Log the dueDate value for debugging
     console.log("Due Date value:", dueDate);
 
-    // Validate date input
     const parsedDueDate = new Date(dueDate);
 
-    // Check if the date is valid
     if (isNaN(parsedDueDate.getTime())) {
       Alert.alert('Error', 'Please enter a valid due date in the format YYYY-MM-DD.');
       return;
     }
 
-    // Further check if the date is within bounds
     if (parsedDueDate.getFullYear() < 1970 || parsedDueDate.getFullYear() > 2038) {
       Alert.alert('Error', 'Date must be between 1970 and 2038.');
       return;
@@ -70,11 +66,11 @@ export default function EditTask({ route, navigation }) {
         title,
         type,
         priority,
-        dueDate: parsedDueDate, // Use the validated Date object
+        dueDate: parsedDueDate,
         description,
       });
       Alert.alert('Success', 'Task updated successfully');
-      navigation.goBack(); // Go back after updating
+      navigation.goBack();
     } catch (error) {
       console.error('Error updating task:', error);
       Alert.alert('Error', 'Could not update task');
@@ -130,18 +126,20 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: '#f7f9fc', // Softer background for improved readability
+    backgroundColor: '#f7f9fc',
   },
   closeButton: {
     alignSelf: 'flex-end',
   },
   title: {
+    fontFamily: 'Poppins-Regular',
     fontSize: 26,
     fontWeight: '600',
     marginBottom: 20,
     color: '#1C274C',
   },
   input: {
+    fontFamily: 'Poppins-Regular',
     borderWidth: 1,
     borderColor: '#ccc',
     borderRadius: 5,
@@ -156,6 +154,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   buttonText: {
+    fontFamily: 'Poppins-Regular',
     color: '#fff',
     fontWeight: 'bold',
   },

@@ -9,54 +9,59 @@ import {
   ScrollView,
   Alert,
 } from 'react-native';
+import { useFonts } from 'expo-font';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Picker } from '@react-native-picker/picker';
 import { Ionicons } from '@expo/vector-icons';
-import { db } from '../../firebase'; // Adjust the import based on your file structure
+import { db } from '../../firebase'; 
 import { collection, addDoc } from 'firebase/firestore';
-import { Timestamp } from 'firebase/firestore'; // Import Timestamp
-import { getAuth } from 'firebase/auth'; // Import getAuth to access user info
+import { Timestamp } from 'firebase/firestore';
+import { getAuth } from 'firebase/auth';
 
 export default function AddTask({ navigation }) {
   const [task, setTask] = useState({
     title: '',
     type: '',
     priority: '',
-    dueDate: null, // Initialize as null
+    dueDate: null,
     reminder: false,
     description: '',
-    userId: '', // Initialize userId
+    userId: '',
   });
-  
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
   const [dateTimeMode, setDateTimeMode] = useState('date');
 
-  // Get current user ID
+  const [fontsLoaded] = useFonts({
+    'Poppins-Regular': require('../../assets/fonts/Poppins-Regular.ttf'),
+  });
+
   const auth = getAuth();
   const currentUser = auth.currentUser;
-  
+
   if (currentUser) {
-    task.userId = currentUser.uid; // Set userId to task state
+    task.userId = currentUser.uid;
+  }
+
+  if (!fontsLoaded) {
+    return null;
   }
 
   const handleAddTask = async () => {
-    // Check required fields, excluding reminder
     if (!task.title || !task.type || !task.priority || !task.dueDate) {
       Alert.alert('Missing Fields', 'Please fill in all required fields.');
       return;
     }
 
     try {
-      // Create a new date object from task.dueDate string
       const dueDateTimestamp = new Date(task.dueDate);
       const taskData = {
         ...task,
-        dueDate: Timestamp.fromDate(dueDateTimestamp), // Store as Firestore Timestamp
+        dueDate: Timestamp.fromDate(dueDateTimestamp),
       };
       const docRef = await addDoc(collection(db, 'tasks'), taskData);
       Alert.alert('Success', 'Task added successfully!');
-      navigation.navigate('ListTask', { selectedDate: dueDateTimestamp.toISOString().split('T')[0] }); // Pass formatted date
+      navigation.navigate('ListTask', { selectedDate: dueDateTimestamp.toISOString().split('T')[0] });
     } catch (e) {
       Alert.alert('Error', 'Could not add task. Please try again.');
     }
@@ -72,7 +77,7 @@ export default function AddTask({ navigation }) {
     const currentDate = selectedDate || new Date();
 
     if (dateTimeMode === 'date') {
-      const formattedDate = currentDate.toISOString().split('T')[0]; // Get date string
+      const formattedDate = currentDate.toISOString().split('T')[0];
       setTask((prevTask) => ({
         ...prevTask,
         dueDate: formattedDate,
@@ -82,7 +87,7 @@ export default function AddTask({ navigation }) {
       setDateTimeMode('time');
     } else {
       const formattedTime = `${currentDate.getHours().toString().padStart(2, '0')}:${currentDate.getMinutes().toString().padStart(2, '0')}`;
-      const formattedDateTime = `${task.dueDate} ${formattedTime}`; // Combine date and time
+      const formattedDateTime = `${task.dueDate} ${formattedTime}`;
       setTask((prevTask) => ({
         ...prevTask,
         dueDate: formattedDateTime,
@@ -136,7 +141,7 @@ export default function AddTask({ navigation }) {
         <TextInput
           style={styles.input}
           placeholder="YYYY-MM-DD HH:mm"
-          value={task.dueDate || ''} // Display an empty string if dueDate is null
+          value={task.dueDate || ''}
           editable={false}
         />
         <TouchableOpacity onPress={() => setShowDatePicker(true)} style={styles.calendarIcon}>
@@ -159,14 +164,6 @@ export default function AddTask({ navigation }) {
           onChange={handleDateChange}
         />
       )}
-
-      <Text style={styles.label}>Reminders</Text>
-      <Switch
-        value={task.reminder}
-        onValueChange={(value) => setTask({ ...task, reminder: value })}
-        thumbColor={task.reminder ? '#1C274C' : '#ddd'}
-        trackColor={{ false: '#ddd', true: '#AFCBFF' }}
-      />
 
       <Text style={styles.label}>Description</Text>
       <TextInput
@@ -193,7 +190,7 @@ const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
     padding: 20,
-    backgroundColor: '#f9f9f9', // Light background color for better contrast
+    backgroundColor: '#f9f9f9',
   },
   title: {
     fontSize: 26,
@@ -201,12 +198,14 @@ const styles = StyleSheet.create({
     color: '#1C274C',
     textAlign: 'center',
     marginBottom: 20,
+    fontFamily: 'Poppins-Regular', // Apply Poppins-Regular font
   },
   label: {
     fontSize: 16,
     fontWeight: '600',
     color: '#333',
     marginBottom: 5,
+    fontFamily: 'Poppins-Regular', // Apply Poppins-Regular font
   },
   input: {
     height: 45,
@@ -216,7 +215,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     marginBottom: 15,
     fontSize: 16,
-    backgroundColor: '#fff', // White background for input fields
+    backgroundColor: '#fff',
+    fontFamily: 'Poppins-Regular', // Apply Poppins-Regular font
   },
   dropdown: {
     borderColor: '#ccc',
@@ -227,6 +227,7 @@ const styles = StyleSheet.create({
   picker: {
     height: 45,
     color: '#333',
+    fontFamily: 'Poppins-Regular', // Apply Poppins-Regular font
   },
   textArea: {
     height: 100,
@@ -237,6 +238,7 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     fontSize: 16,
     backgroundColor: '#fff',
+    fontFamily: 'Poppins-Regular', // Apply Poppins-Regular font
   },
   buttonContainer: {
     flexDirection: 'row',
@@ -254,6 +256,7 @@ const styles = StyleSheet.create({
   buttonText: {
     color: '#fff',
     fontWeight: 'bold',
+    fontFamily: 'Poppins-Regular', // Apply Poppins-Regular font
   },
   cancelButton: {
     backgroundColor: '#ff5c5c',
